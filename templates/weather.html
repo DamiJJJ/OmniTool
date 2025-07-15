@@ -7,7 +7,7 @@
     <h2 class="mb-4">Weather Forecast</h2>
     <form method="POST" action="/weather" class="mb-4">
         <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Wprowadź nazwę miasta" name="city" required>
+            <input type="text" class="form-control" placeholder="Enter city name" name="city" required>
             <button class="btn btn-primary" type="submit">Check weather</button>
         </div>
     </form>
@@ -22,11 +22,11 @@
     <div class="card weather-card">
         <div class="card-body text-center">
             <h3 class="card-title">{{ weather_data.city }}</h3>
-            <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@2x.png" alt="Ikona pogody">
+            <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@2x.png" alt="weather icon">
             <p class="card-text fs-4">{{ weather_data.temperature }}°C</p>
             <p class="card-text">{{ weather_data.description|capitalize }}</p>
-            <p class="card-text">Wilgotność: {{ weather_data.humidity }}%</p>
-            <p class="card-text">Prędkość wiatru: {{ weather_data.wind_speed }} m/s</p>
+            <p class="card-text">Humidity: {{ weather_data.humidity }}%</p>
+            <p class="card-text">Wind speed: {{ weather_data.wind_speed }} m/s</p>
         </div>
     </div>
     {% endif %}

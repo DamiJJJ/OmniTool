@@ -13,8 +13,7 @@ def weather():
     if request.method == 'POST':
         city = request.form.get('city')
         if city:
-            # Używamy API Current Weather Data
-            url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=pl"
+            url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=en"
             response = requests.get(url)
             if response.status_code == 200:
                 data = response.json()
@@ -27,9 +26,9 @@ def weather():
                     'wind_speed': data['wind']['speed']
                 }
             else:
-                error = "Nie udało się pobrać danych pogodowych. Sprawdź nazwę miasta."
+                error = "Could not download weather forecast data. Check the city name."
         else:
-            error = "Proszę podać nazwę miasta."
+            error = "Please provide city name."
     return render_template('weather.html', weather_data=weather_data, error=error)
 
 @app.route('/')
