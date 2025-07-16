@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 import requests
 import json
 from datetime import datetime
@@ -10,6 +10,55 @@ OPENWEATHER_API_KEY = "c58789670bdbb47b3015c68589ed18e3" #os.environ.get("OPENWE
 CURRENCY_API_KEY = "922269b5be3a19a59538299e"
 
 DB_FILE = 'currency_logs.json'
+TODO_FILE = 'todo_list.json'
+
+def load_todos():
+    if not os.path.exists(TODO_FILE):
+        with open(TODO_FILE, 'w') as f:
+            json.dump([], f)
+    with open(TODO_FILE, 'r') as f:
+        return json.load(f)
+
+def save_todos(todos):
+    with open(TODO_FILE, 'w') as f:
+        json.dump(todos, f, indent=4)
+
+@app.route('/todo', methods=['GET', 'POST'])
+def todo_list():
+    if request.method == 'POST':
+        task_description = request.form.get('task')
+        if task_description:
+            todos = load_todos()
+            new_task = {
+                'id': len(todos) + 1,
+                'description': task_description,
+                'completed': False
+            }
+            todos.append(new_task)
+            save_todos(todos)
+        return redirect(url_for('todo_list'))
+    
+    todos = load_todos()
+    return render_template('todo.html', todos=todos)
+
+@app.route('/todo/complete/<int:task_id>')
+def complete_todo(task_id):
+    todos = load_todos()
+    for task in todos:
+        if task['id'] == task_id:
+            task['completed'] = not task['completed']
+            break
+    save_todos(todos)
+    return redirect(url_for('todo_list'))
+
+@app.route('/todo/delete/<int:task_id>')
+def delete_todo(task_id):
+    todos = load_todos()
+    todos = [task for task in todos if task['id'] != task_id]
+    for i, task in enumerate(todos):
+        task['id'] = i + 1
+    save_todos(todos)
+    return redirect(url_for('todo_list'))
 
 def load_currency_logs():
     if not os.path.exists(DB_FILE):
