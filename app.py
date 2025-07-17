@@ -1,77 +1,74 @@
 import os
 from flask import Flask, redirect, render_template, request, url_for
+from flask_sqlalchemy import SQLAlchemy
 import requests
 import json
 from datetime import datetime
 
 app = Flask(__name__)
 
+# --- SQLAlchemy Conf ---
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# --- Database models ---
+
+class CurrencyLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    from_currency = db.Column(db.String(10), nullable=False)
+    to_currency = db.Column(db.String(10), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    converted_amount = db.Column(db.Float, nullable=False)
+    rate = db.Column(db.Float, nullable=False)
+
+    def __repr__(self):
+        return f'<CurrencyLog {self.id}>'
+
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(200), nullable=False)
+    completed = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'<Todo {self.id} - {self.description}>'
+
+# --- API Keys ---
+
 OPENWEATHER_API_KEY = "c58789670bdbb47b3015c68589ed18e3" #os.environ.get("OPENWEATHER_API_KEY")
 CURRENCY_API_KEY = "922269b5be3a19a59538299e"
 
-DB_FILE = 'currency_logs.json'
-TODO_FILE = 'todo_list.json'
-
-def load_todos():
-    if not os.path.exists(TODO_FILE):
-        with open(TODO_FILE, 'w') as f:
-            json.dump([], f)
-    with open(TODO_FILE, 'r') as f:
-        return json.load(f)
-
-def save_todos(todos):
-    with open(TODO_FILE, 'w') as f:
-        json.dump(todos, f, indent=4)
+# --- TO-DO ROUTE --
 
 @app.route('/todo', methods=['GET', 'POST'])
 def todo_list():
     if request.method == 'POST':
         task_description = request.form.get('task')
         if task_description:
-            todos = load_todos()
-            new_task = {
-                'id': len(todos) + 1,
-                'description': task_description,
-                'completed': False
-            }
-            todos.append(new_task)
-            save_todos(todos)
+            new_task = Todo(description=task_description)
+            db.session.add(new_task)
+            db.session.commit()
         return redirect(url_for('todo_list'))
     
-    todos = load_todos()
+    todos = Todo.query.all()
     return render_template('todo.html', todos=todos)
 
 @app.route('/todo/complete/<int:task_id>')
 def complete_todo(task_id):
-    todos = load_todos()
-    for task in todos:
-        if task['id'] == task_id:
-            task['completed'] = not task['completed']
-            break
-    save_todos(todos)
+    task = Todo.query.get_or_404(task_id)
+    task.completed = not task.completed
+    db.session.commit()
     return redirect(url_for('todo_list'))
 
 @app.route('/todo/delete/<int:task_id>')
 def delete_todo(task_id):
-    todos = load_todos()
-    todos = [task for task in todos if task['id'] != task_id]
-    for i, task in enumerate(todos):
-        task['id'] = i + 1
-    save_todos(todos)
+    task = Todo.query.get_or_404(task_id)
+    db.session.delete(task)
+    db.session.commit()
     return redirect(url_for('todo_list'))
 
-def load_currency_logs():
-    if not os.path.exists(DB_FILE):
-        with open(DB_FILE, 'w') as f:
-            json.dump([], f)
-    with open(DB_FILE, 'r') as f:
-        return json.load(f)
-    
-def save_currency_log(log_entry):
-    logs = load_currency_logs()
-    logs.append(log_entry)
-    with open(DB_FILE, 'w') as f:
-        json.dump(logs, f, indent=4)
+# --- CURRENCY ROUTE ---
 
 @app.route('/currency', methods=['GET', 'POST'])
 def currency_converter():
@@ -79,7 +76,6 @@ def currency_converter():
     error = None
     currencies = []
     
-
     try:
         symbols_url = f"https://api.exchangerate-api.com/v4/latest/USD"
         response = requests.get(symbols_url)
@@ -87,9 +83,8 @@ def currency_converter():
         data = response.json()
         currencies = sorted(data['rates'].keys())
     except requests.exceptions.RequestException as e:
-        error = f"Could not download the currency list: {e}"
+        error = f"Failed to download currency list: {e}"
         print(f"Error fetching currency symbols: {e}")
-
 
     if request.method == 'POST':
         from_currency = request.form.get('from_currency')
@@ -101,7 +96,7 @@ def currency_converter():
             if amount <= 0:
                 raise ValueError("The amount must be positive.")
         except ValueError:
-            error = "Incorrect amount. Please enter the number."
+            error = "Invalid amount. Please enter a number."
             return render_template('currency.html', converted_amount=converted_amount, error=error, currencies=currencies)
 
         if from_currency and to_currency and amount:
@@ -115,29 +110,31 @@ def currency_converter():
                     exchange_rate = data['rates'][to_currency]
                     converted_amount = amount * exchange_rate
 
-                    log_entry = {
-                        'timestamp': datetime.now().isoformat(),
-                        'from_currency': from_currency,
-                        'to_currency': to_currency,
-                        'amount': amount,
-                        'converted_amount': converted_amount,
-                        'rate': exchange_rate
-                    }
-                    save_currency_log(log_entry)
+                    new_log = CurrencyLog(
+                        from_currency=from_currency,
+                        to_currency=to_currency,
+                        amount=amount,
+                        converted_amount=converted_amount,
+                        rate=exchange_rate
+                    )
+                    db.session.add(new_log)
+                    db.session.commit()
                 else:
-                    error = "Incorrect target currency."
+                    error = "Invalid target currency."
             except requests.exceptions.RequestException as e:
-                error = f"Connection error with API: {e}"
+                error = f"Currency API connection error: {e}"
                 print(f"Error fetching exchange rate: {e}")
             except Exception as e:
-                error = f"There was an error while converting: {e}"
+                error = f"An error occurred while converting: {e}"
                 print(f"General error in currency conversion: {e}")
         else:
-            error = "Please fill out all fields."
+            error = "Please fill all fields."
 
-    currency_logs = load_currency_logs()
+    currency_logs = CurrencyLog.query.order_by(CurrencyLog.timestamp.desc()).all()
 
     return render_template('currency.html', converted_amount=converted_amount, error=error, currencies=currencies, currency_logs=currency_logs)
+
+# --- WEATHER ROUTE ---
 
 @app.route('/weather', methods=['GET', 'POST'])
 def weather():
@@ -169,4 +166,6 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
