@@ -1,8 +1,10 @@
 import os
 from flask import Flask, render_template
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from extensions import db 
-
 from models import CurrencyLog, Todo 
 
 from modules.weather import weather_bp

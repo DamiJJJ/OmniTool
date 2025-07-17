@@ -4,7 +4,9 @@ import os
 
 weather_bp = Blueprint('weather', __name__, template_folder='../templates')
 
-OPENWEATHER_API_KEY = "c58789670bdbb47b3015c68589ed18e3" #os.environ.get("OPENWEATHER_API_KEY")
+OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY") 
+if not OPENWEATHER_API_KEY:
+    print("ERROR: NO OPENWEATHER_API_KEY VARIABLE. Check .env file or environment configuration.")
 
 @weather_bp.route('/weather', methods=['GET', 'POST'])
 def weather():

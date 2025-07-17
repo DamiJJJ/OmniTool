@@ -7,7 +7,9 @@ from models import CurrencyLog
 
 currency_bp = Blueprint('currency', __name__, template_folder='../templates')
 
-CURRENCY_API_KEY = "922269b5be3a19a59538299e"
+CURRENCY_API_KEY = os.environ.get("CURRENCY_API_KEY")
+if not CURRENCY_API_KEY:
+    print("ERROR: NO CURRENCY_API_KEY VARIABLE. Check .env file or environment configuration.")
 
 @currency_bp.route('/currency', methods=['GET', 'POST'])
 def currency_converter():
