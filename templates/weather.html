@@ -1,34 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}Weather Forecast{% endblock %}
+{% block title %}Weather - OmniTool{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Weather Forecast</h2>
-    <form method="POST" action="/weather" class="mb-4">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Enter city name" name="city" required>
-            <button class="btn btn-primary" type="submit">Check weather</button>
-        </div>
-    </form>
+    <h1 class="mb-4 text-center">Weather Forecast</h1>
 
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-        {{ error }}
-    </div>
-    {% endif %}
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="POST" action="{{ url_for('weather.weather') }}">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Enter city name" name="city" required>
+                <button class="btn btn-primary" type="submit">Show Weather</button>
+            </div>
+        </form>
 
-    {% if weather_data %}
-    <div class="card weather-card">
-        <div class="card-body text-center">
-            <h3 class="card-title">{{ weather_data.city }}</h3>
-            <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@2x.png" alt="weather icon">
-            <p class="card-text fs-4">{{ weather_data.temperature }}°C</p>
-            <p class="card-text">{{ weather_data.description|capitalize }}</p>
-            <p class="card-text">Humidity: {{ weather_data.humidity }}%</p>
-            <p class="card-text">Wind speed: {{ weather_data.wind_speed }} m/s</p>
+        {% if error %}
+        <div class="alert alert-danger mt-3" role="alert">
+            {{ error }}
         </div>
+        {% endif %}
+
+        {% if current_weather_data %}
+        <hr>
+        <div class="current-weather text-center mb-4">
+            <h2>Current Weather in {{ current_weather_data.city }}</h2>
+            <img src="http://openweathermap.org/img/wn/{{ current_weather_data.icon }}@2x.png" alt="{{ current_weather_data.description }}">
+            <p class="h1">{{ "%.1f"|format(current_weather_data.temperature) }}°C</p>
+            <p class="h4">{{ current_weather_data.description|capitalize }}</p>
+            <p>Feels like: {{ "%.1f"|format(current_weather_data.feels_like) }}°C</p>
+            <p>Humidity: {{ current_weather_data.humidity }}% | Wind Speed: {{ "%.1f"|format(current_weather_data.wind_speed) }} m/s</p>
+        </div>
+
+        {# Today's Hourly Forecast #}
+        {% if today_hourly_forecast %}
+        <h3>Today's Hourly Forecast</h3>
+        <div class="hourly-forecast-scroll mb-4">
+            <div class="d-flex flex-nowrap overflow-auto py-2">
+                {% for hour in today_hourly_forecast %}
+                <div class="card text-center mx-2 p-2 flex-shrink-0" style="width: 100px;">
+                    <p class="mb-1"><strong>{{ hour.time }}</strong></p>
+                    <img src="http://openweathermap.org/img/wn/{{ hour.icon }}.png" alt="{{ hour.description }}" class="mx-auto" style="width: 50px; height: 50px;">
+                    <p class="mb-0">{{ "%.1f"|format(hour.temp) }}°C</p>
+                    <small>{{ hour.description }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Upcoming Days Forecast #}
+        {% if upcoming_daily_forecast %}
+        <h3>Upcoming Days Forecast</h3>
+        <div class="list-group">
+            {% for day_forecast in upcoming_daily_forecast %}
+            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h5>{{ day_forecast.day_name }} ({{ day_forecast.date }})</h5>
+                    <p class="mb-0">{{ day_forecast.description }}</p>
+                </div>
+                <div class="text-end">
+                    <img src="http://openweathermap.org/img/wn/{{ day_forecast.icon }}.png" alt="{{ day_forecast.description }}" style="width: 50px; height: 50px; vertical-align: middle;">
+                    <span class="ms-2">Min: {{ "%.1f"|format(day_forecast.min_temp) }}°C</span>
+                    <span class="ms-2">Max: {{ "%.1f"|format(day_forecast.max_temp) }}°C</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}
