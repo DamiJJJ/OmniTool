@@ -30,8 +30,6 @@
             <p>Feels like: {{ "%.1f"|format(current_weather_data.feels_like) }}°C</p>
             <p>Humidity: {{ current_weather_data.humidity }}% | Wind Speed: {{ "%.1f"|format(current_weather_data.wind_speed) }} m/s</p>
         </div>
-
-        {# Today's Hourly Forecast #}
         {% if today_hourly_forecast %}
         <h3>Today's Hourly Forecast</h3>
         <div class="hourly-forecast-scroll mb-4">
@@ -48,20 +46,39 @@
         </div>
         {% endif %}
 
-        {# Upcoming Days Forecast #}
-        {% if upcoming_daily_forecast %}
+        {% if upcoming_daily_forecast_grouped %}
         <h3>Upcoming Days Forecast</h3>
-        <div class="list-group">
-            {% for day_forecast in upcoming_daily_forecast %}
-            <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <div>
-                    <h5>{{ day_forecast.day_name }} ({{ day_forecast.date }})</h5>
-                    <p class="mb-0">{{ day_forecast.description }}</p>
-                </div>
-                <div class="text-end">
-                    <img src="http://openweathermap.org/img/wn/{{ day_forecast.icon }}.png" alt="{{ day_forecast.description }}" style="width: 50px; height: 50px; vertical-align: middle;">
-                    <span class="ms-2">Min: {{ "%.1f"|format(day_forecast.min_temp) }}°C</span>
-                    <span class="ms-2">Max: {{ "%.1f"|format(day_forecast.max_temp) }}°C</span>
+        <div class="accordion" id="weatherAccordion">
+            {% for day_data in upcoming_daily_forecast_grouped %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ loop.index }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <div>
+                                <h5>{{ day_data.day_name }} ({{ day_data.date }})</h5>
+                                <p class="mb-0">{{ day_data.description }}</p>
+                            </div>
+                            <div class="text-end me-3"> {# Added margin-end for spacing from arrow #}
+                                <img src="http://openweathermap.org/img/wn/{{ day_data.icon }}.png" alt="{{ day_data.description }}" style="width: 50px; height: 50px; vertical-align: middle;">
+                                <span class="ms-2">Min: {{ "%.1f"|format(day_data.min_temp) }}°C</span>
+                                <span class="ms-2">Max: {{ "%.1f"|format(day_data.max_temp) }}°C</span>
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#weatherAccordion">
+                    <div class="accordion-body">
+                        <div class="d-flex flex-nowrap overflow-auto py-2 hourly-forecast-scroll">
+                            {% for hour_detail in day_data.hourly_details %}
+                            <div class="card text-center mx-2 p-2 flex-shrink-0" style="width: 100px;">
+                                <p class="mb-1"><strong>{{ hour_detail.time }}</strong></p>
+                                <img src="http://openweathermap.org/img/wn/{{ hour_detail.icon }}.png" alt="{{ hour_detail.description }}" class="mx-auto" style="width: 50px; height: 50px;">
+                                <p class="mb-0">{{ "%.1f"|format(hour_detail.temp) }}°C</p>
+                                <small>{{ hour_detail.description }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endfor %}

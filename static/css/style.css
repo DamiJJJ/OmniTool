@@ -117,6 +117,44 @@ body.dark-mode .form-select option {
     color: #f1f1f1;
 }
 
+/* --- Accordion Styles for Dark Mode --- */
+body.dark-mode .accordion-item {
+    background-color: #212121; /* Tło pojedynczego elementu akordeonu */
+    border: 1px solid #3d3d3d; /* Ramka elementu akordeonu */
+    color: #f1f1f1; /* Kolor tekstu */
+}
+
+body.dark-mode .accordion-header {
+    background-color: #282828; /* Tło nagłówka akordeonu */
+    border-color: #3d3d3d;
+}
+
+body.dark-mode .accordion-button {
+    background-color: #282828; /* Tło przycisku nagłówka (nawet jeśli nie ma focusa/hovera) */
+    color: #f1f1f1; /* Kolor tekstu przycisku */
+    border-color: #3d3d3d;
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #3d3d3d; /* Tło rozwiniętego przycisku nagłówka */
+    color: #f1f1f1;
+    box-shadow: none; /* Usuń domyślny box-shadow, który może być jasny */
+}
+
+body.dark-mode .accordion-button:focus {
+    border-color: #555555; /* Ramka po focusie */
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25); /* Subtelny biały box-shadow */
+}
+
+body.dark-mode .accordion-button::after {
+    filter: invert(1) grayscale(1); /* Odwróć kolor strzałki (np. z czarnej na białą) */
+}
+
+body.dark-mode .accordion-body {
+    background-color: #181818; /* Tło zawartości rozwijanej (jak główne tło body) */
+    color: #f1f1f1;
+    border-top: 1px solid #3d3d3d;
+}
 
 /* --- Weather Module Specific Styles --- */
 .hourly-forecast-scroll {

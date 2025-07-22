@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 import requests
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 weather_bp = Blueprint('weather', __name__, template_folder='../templates')
 
@@ -13,7 +13,7 @@ if not OPENWEATHER_API_KEY:
 def weather():
     current_weather_data = None
     today_hourly_forecast = []
-    upcoming_daily_forecast = []
+    upcoming_daily_forecast_grouped = []
     error = None
 
     if request.method == 'POST':
@@ -44,11 +44,13 @@ def weather():
                 }
 
                 today = datetime.now().date()
-                processed_days = set()
+                
+                all_forecasts_by_day = {}
 
                 for forecast_item in data['list']:
                     dt_object = datetime.fromtimestamp(forecast_item['dt'])
                     forecast_date = dt_object.date()
+                    date_key = dt_object.strftime('%Y-%m-%d')
 
                     if forecast_date == today:
                         today_hourly_forecast.append({
@@ -57,39 +59,51 @@ def weather():
                             'icon': forecast_item['weather'][0]['icon'],
                             'description': forecast_item['weather'][0]['description']
                         })
-                    elif forecast_date > today and forecast_date not in processed_days:
-                        temp_day_forecasts = {}
-                        for f_item in data['list']:
-                            f_dt_object = datetime.fromtimestamp(f_item['dt'])
-                            f_date_key = f_dt_object.strftime('%Y-%m-%d')
-                            if f_date_key not in temp_day_forecasts:
-                                temp_day_forecasts[f_date_key] = []
-                            temp_day_forecasts[f_date_key].append(f_item)
-                        
-                        for date_key, day_forecast_items in sorted(temp_day_forecasts.items()):
-                            day_dt = datetime.fromisoformat(date_key).date()
-                            if day_dt > today and day_dt not in processed_days:
-                                temps = [item['main']['temp'] for item in day_forecast_items]
-                                if temps:
-                                    min_temp = min(temps)
-                                    max_temp = max(temps)
-                                else:
-                                    min_temp = None
-                                    max_temp = None
-                                
-                                representative_forecast = day_forecast_items[0] if day_forecast_items else None
+                    
+                    if date_key not in all_forecasts_by_day:
+                        all_forecasts_by_day[date_key] = []
+                    all_forecasts_by_day[date_key].append(forecast_item)
+                    
+                for date_key in sorted(all_forecasts_by_day.keys()):
+                    day_dt_object = datetime.fromisoformat(date_key).date()
 
-                                if representative_forecast:
-                                    upcoming_daily_forecast.append({
-                                        'date': date_key,
-                                        'day_name': datetime.fromisoformat(date_key).strftime('%A'),
-                                        'min_temp': min_temp,
-                                        'max_temp': max_temp,
-                                        'icon': representative_forecast['weather'][0]['icon'],
-                                        'description': representative_forecast['weather'][0]['description'].capitalize()
-                                    })
-                                processed_days.add(day_dt)
-                        break
+                    if day_dt_object > today:
+                        day_forecast_items = all_forecasts_by_day[date_key]
+                        
+                        # Calculate min/max temp for the day
+                        temps = [item['main']['temp'] for item in day_forecast_items]
+                        min_temp = min(temps) if temps else None
+                        max_temp = max(temps) if temps else None
+
+                        representative_forecast = None
+                        for item in day_forecast_items:
+                            if datetime.fromtimestamp(item['dt']).hour >= 12 and datetime.fromtimestamp(item['dt']).hour < 15:
+                                representative_forecast = item
+                                break
+                        if not representative_forecast and day_forecast_items: # Fallback to first if no midday entry
+                            representative_forecast = day_forecast_items[0]
+
+                        if representative_forecast:
+                            # Prepare hourly details for this specific day
+                            hourly_details_for_day = []
+                            for hr_item in day_forecast_items:
+                                hr_dt_object = datetime.fromtimestamp(hr_item['dt'])
+                                hourly_details_for_day.append({
+                                    'time': hr_dt_object.strftime('%H:%M'),
+                                    'temp': hr_item['main']['temp'],
+                                    'icon': hr_item['weather'][0]['icon'],
+                                    'description': hr_item['weather'][0]['description']
+                                })
+
+                            upcoming_daily_forecast_grouped.append({
+                                'date': date_key,
+                                'day_name': datetime.fromisoformat(date_key).strftime('%A'),
+                                'min_temp': min_temp,
+                                'max_temp': max_temp,
+                                'icon': representative_forecast['weather'][0]['icon'],
+                                'description': representative_forecast['weather'][0]['description'].capitalize(),
+                                'hourly_details': hourly_details_for_day
+                            })
 
             except requests.exceptions.RequestException as e:
                 error = f"API connection error: {e}. Check city name or API key."
@@ -106,5 +120,5 @@ def weather():
     return render_template('weather.html', 
                            current_weather_data=current_weather_data, 
                            today_hourly_forecast=today_hourly_forecast, 
-                           upcoming_daily_forecast=upcoming_daily_forecast, 
+                           upcoming_daily_forecast_grouped=upcoming_daily_forecast_grouped, 
                            error=error)
