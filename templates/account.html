@@ -1,18 +1,17 @@
-{% extends "base.html" %}
-{% block title %}Account - OmniTool{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Account - OmniTool{% endblock %} {%
+block content %}
 <div class="container mt-4">
-    <div class="card p-4 shadow-sm">
-        <h1 class="mb-4 text-center">Account Information</h1>
-        {% if current_user.is_authenticated %}
-            <p><strong>Username:</strong> {{ current_user.username }}</p>
-            <p><strong>Email:</strong> {{ current_user.email }}</p>
-            {# Tutaj możesz dodać inne informacje o użytkowniku lub opcje #}
-            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-        {% else %}
-            <p>You are not logged in.</p>
-            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
-        {% endif %}
-    </div>
+  <div class="card p-4 shadow-sm">
+    <h1 class="mb-4 text-center">Account Information</h1>
+    {% if current_user.is_authenticated %}
+    <p><strong>Username:</strong> {{ current_user.username }}</p>
+    <p><strong>Email:</strong> {{ current_user.email }}</p>
+    {# Tutaj możesz dodać inne informacje o użytkowniku lub opcje #}
+    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    {% else %}
+    <p>You are not logged in.</p>
+    <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

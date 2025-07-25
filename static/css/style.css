@@ -1,226 +1,225 @@
 /* General Body Styles */
 body {
-    transition: background-color 0.3s, color 0.3s;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #333;
-    background-color: #f8f9fa;
+  transition: background-color 0.3s, color 0.3s;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
 }
 
 body.dark-mode {
-    background-color: #181818;
-    color: #f1f1f1;
+  background-color: #181818;
+  color: #f1f1f1;
 }
 
 body.dark-mode .navbar {
-    background-color: #212121 !important;
-    border-bottom: 1px solid #3d3d3d;
+  background-color: #212121 !important;
+  border-bottom: 1px solid #3d3d3d;
 }
 
 body.dark-mode .navbar-brand,
 body.dark-mode .nav-link {
-    color: #f1f1f1 !important;
+  color: #f1f1f1 !important;
 }
 
 body.dark-mode .nav-link.active {
-    color: #aaaaaa !important;
+  color: #aaaaaa !important;
 }
 
 body.dark-mode .card {
-    background-color: #212121;
-    color: #f1f1f1;
-    border: 1px solid #3d3d3d;
+  background-color: #212121;
+  color: #f1f1f1;
+  border: 1px solid #3d3d3d;
 }
 
 body.dark-mode .form-control {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    border-color: #555555;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  border-color: #555555;
 }
 
 body.dark-mode .form-control::placeholder {
-    color: #cccccc;
+  color: #cccccc;
 }
 
 body.dark-mode .btn-primary {
-    background-color: #3d3d3d;
-    border-color: #555555;
-    color: #f1f1f1;
+  background-color: #3d3d3d;
+  border-color: #555555;
+  color: #f1f1f1;
 }
 
 body.dark-mode .btn-primary:hover {
-    background-color: #555555;
-    border-color: #717171;
+  background-color: #555555;
+  border-color: #717171;
 }
 
 /* Styles for btn-outline-light in Dark Mode (for Login) */
 body.dark-mode .btn-outline-light {
-    color: #f1f1f1;
-    border-color: #555555;
+  color: #f1f1f1;
+  border-color: #555555;
 }
 
 body.dark-mode .btn-outline-light:hover {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    border-color: #717171;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  border-color: #717171;
 }
 
 /* Styles for btn-outline-danger in Dark Mode (for Logout) */
 body.dark-mode .btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
+  color: #dc3545;
+  border-color: #dc3545;
 }
 
 body.dark-mode .btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
-    border-color: #dc3545;
+  background-color: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
 }
 
 body.dark-mode .list-group-item {
-    background-color: #282828;
-    color: #f1f1f1;
-    border-color: #3d3d3d;
+  background-color: #282828;
+  color: #f1f1f1;
+  border-color: #3d3d3d;
 }
 
 body.dark-mode .list-group-item.list-group-item-dark {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    border-color: #555555;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  border-color: #555555;
 }
 
 body.dark-mode .text-muted {
-    color: #b0b0b0 !important;
+  color: #b0b0b0 !important;
 }
 
 /* --- Table Styles for Dark Mode --- */
 body.dark-mode .table {
-    color: #f1f1f1;
-    background-color: #212121 !important;
-    border-color: #3d3d3d;
+  color: #f1f1f1;
+  background-color: #212121 !important;
+  border-color: #3d3d3d;
 }
 
 body.dark-mode .table thead th {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    border-color: #555555;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  border-color: #555555;
 }
 
 body.dark-mode .table td,
 body.dark-mode .table th {
-    background-color: #212121 !important;
-    border-color: #3d3d3d;
-    color: #f1f1f1;
+  background-color: #212121 !important;
+  border-color: #3d3d3d;
+  color: #f1f1f1;
 }
 
 body.dark-mode .table tbody tr:nth-of-type(odd) td,
 body.dark-mode .table tbody tr:nth-of-type(odd) th {
-    background-color: #282828 !important;
-    color: #f1f1f1;
+  background-color: #282828 !important;
+  color: #f1f1f1;
 }
 
 body.dark-mode .table-bordered {
-    border-color: #3d3d3d;
+  border-color: #3d3d3d;
 }
 
 body.dark-mode .table-bordered th,
 body.dark-mode .table-bordered td {
-    border-color: #3d3d3d;
+  border-color: #3d3d3d;
 }
 
 /* --- Select (Dropdown) Styles for Dark Mode --- */
 body.dark-mode select.form-select,
 body.dark-mode .form-select {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    border-color: #555555;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f1f1f1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); /* Biała strzałka */
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  border-color: #555555;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f1f1f1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); /* Biała strzałka */
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
 }
 
 body.dark-mode select.form-select option,
 body.dark-mode .form-select option {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
 }
 
 /* --- Accordion Styles for Dark Mode --- */
 body.dark-mode .accordion-item {
-    background-color: #212121;
-    border: 1px solid #3d3d3d;
-    color: #f1f1f1;
+  background-color: #212121;
+  border: 1px solid #3d3d3d;
+  color: #f1f1f1;
 }
 
 body.dark-mode .accordion-header {
-    background-color: #282828;
-    border-color: #3d3d3d;
+  background-color: #282828;
+  border-color: #3d3d3d;
 }
 
 body.dark-mode .accordion-button {
-    background-color: #282828;
-    color: #f1f1f1;
-    border-color: #3d3d3d;
+  background-color: #282828;
+  color: #f1f1f1;
+  border-color: #3d3d3d;
 }
 
 body.dark-mode .accordion-button:not(.collapsed) {
-    background-color: #3d3d3d;
-    color: #f1f1f1;
-    box-shadow: none;
+  background-color: #3d3d3d;
+  color: #f1f1f1;
+  box-shadow: none;
 }
 
 body.dark-mode .accordion-button:focus {
-    border-color: #555555;
-    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+  border-color: #555555;
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
 }
 
 body.dark-mode .accordion-button::after {
-    filter: invert(1) grayscale(1);
+  filter: invert(1) grayscale(1);
 }
 
 body.dark-mode .accordion-body {
-    background-color: #181818;
-    color: #f1f1f1;
-    border-top: 1px solid #3d3d3d;
+  background-color: #181818;
+  color: #f1f1f1;
+  border-top: 1px solid #3d3d3d;
 }
 
 /* --- Weather Module Specific Styles --- */
 .hourly-forecast-scroll {
-    padding-bottom: 10px;
+  padding-bottom: 10px;
 }
 .hourly-forecast-scroll::-webkit-scrollbar {
-    height: 8px;
+  height: 8px;
 }
 .hourly-forecast-scroll::-webkit-scrollbar-track {
-    background-color: #f1f1f1;
-    border-radius: 4px;
+  background-color: #f1f1f1;
+  border-radius: 4px;
 }
 .hourly-forecast-scroll::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 4px;
+  background-color: #888;
+  border-radius: 4px;
 }
 .hourly-forecast-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: #555;
+  background-color: #555;
 }
 
 /* Dark Mode Scrollbar styles */
 body.dark-mode .hourly-forecast-scroll::-webkit-scrollbar-track {
-    background-color: #3d3d3d;
+  background-color: #3d3d3d;
 }
 body.dark-mode .hourly-forecast-scroll::-webkit-scrollbar-thumb {
-    background-color: #555555;
+  background-color: #555555;
 }
 body.dark-mode .hourly-forecast-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: #aaaaaa;
+  background-color: #aaaaaa;
 }
 
-
 .list-group-item img {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
 }
 
 .btn-primary {
-    color: #fff;
+  color: #fff;
 }

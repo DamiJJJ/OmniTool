@@ -3,13 +3,14 @@ from flask_login import login_required, current_user
 from extensions import db
 from models import Todo
 
-todo_bp = Blueprint('todo', __name__, template_folder='../templates')
+todo_bp = Blueprint("todo", __name__, template_folder="../templates")
 
-@todo_bp.route('/todo', methods=['GET', 'POST'])
+
+@todo_bp.route("/todo", methods=["GET", "POST"])
 @login_required
 def todo_list():
-    if request.method == 'POST':
-        task_description = request.form.get('task')
+    if request.method == "POST":
+        task_description = request.form.get("task")
         if not task_description:
             flash("Task cannot be empty!", "danger")
         else:
@@ -22,19 +23,24 @@ def todo_list():
                 flash(f"Error adding task: {e}", "danger")
                 db.session.rollback()
 
-        return redirect(url_for('todo.todo_list'))
-    
-    todos = Todo.query.filter_by(user_id=current_user.id).order_by(Todo.date_created.desc()).all()
-    return render_template('todo.html', todos=todos)
+        return redirect(url_for("todo.todo_list"))
 
-@todo_bp.route('/todo/complete/<int:task_id>')
+    todos = (
+        Todo.query.filter_by(user_id=current_user.id)
+        .order_by(Todo.date_created.desc())
+        .all()
+    )
+    return render_template("todo.html", todos=todos)
+
+
+@todo_bp.route("/todo/complete/<int:task_id>")
 @login_required
 def complete_todo(task_id):
     task = Todo.query.get_or_404(task_id)
-    
+
     if task.user_id != current_user.id:
         flash("You are not authorized to complete this task.", "danger")
-        return redirect(url_for('todo.todo_list'))
+        return redirect(url_for("todo.todo_list"))
     try:
         task.completed = not task.completed
         db.session.commit()
@@ -42,16 +48,17 @@ def complete_todo(task_id):
     except Exception as e:
         flash(f"Error updating task status: {e}", "danger")
         db.session.rollback()
-    return redirect(url_for('todo.todo_list'))
+    return redirect(url_for("todo.todo_list"))
 
-@todo_bp.route('/todo/delete/<int:task_id>')
+
+@todo_bp.route("/todo/delete/<int:task_id>")
 @login_required
 def delete_todo(task_id):
     task = Todo.query.get_or_404(task_id)
 
     if task.user_id != current_user.id:
         flash("You are not authorized to delete this task.", "danger")
-        return redirect(url_for('todo.todo_list'))
+        return redirect(url_for("todo.todo_list"))
     try:
         db.session.delete(task)
         db.session.commit()
@@ -59,4 +66,4 @@ def delete_todo(task_id):
     except Exception as e:
         flash(f"Error deleting task: {e}", "danger")
         db.session.rollback()
-    return redirect(url_for('todo.todo_list'))
+    return redirect(url_for("todo.todo_list"))
