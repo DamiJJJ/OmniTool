@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 
@@ -20,6 +20,15 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_very_secret_key_for_dev')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///site.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+@app.route('/set-theme', methods=['POST'])
+def set_theme():
+    data = request.get_json()
+    theme = data.get('theme')
+    if theme in ['dark', 'light']:
+        session['theme'] = theme
+        return jsonify(success=True)
+    return jsonify(success=False), 400
 
 @app.route('/')
 def index():
@@ -87,6 +96,11 @@ def logout():
 @login_required
 def account():
     return render_template('account.html', title='Account')
+
+@app.context_processor
+def inject_theme():
+    theme_setting = session.get('theme', 'light')
+    return dict(current_theme_class=f"{theme_setting}-mode")
 
 if __name__ == '__main__':
     #! Remove debug=True for production
