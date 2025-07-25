@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body class="{{ current_theme_class }}">
+<body class="d-flex flex-column min-vh-100"> {# Zostawiamy te klasy na body #}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url_for('index') }}">OmniTool</a>
@@ -27,55 +27,53 @@
                         <a class="nav-link" href="{{ url_for('todo.todo_list') }}">To-Do list</a>
                     </li>
                 </ul>
-    <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-itemme-3">
-            <li class="nav-item d-flex align-items-center"> {# Dodajemy klasy d-flex i align-items-center #}
-                <div class="form-check form-switch mb-0"> {# Dodajemy mb-0 aby usunąć dolny margines #}
-                    <input class="form-check-input" type="checkbox" id="theme-switch" {% if current_theme_class == 'dark-mode' %}checked{% endif %}>
-                    <label class="form-check-label text-light" for="theme-switch">
-                        <i id="theme-icon" class="fas fa-sun"></i>
-                    </label>
-                </div>
-            </li>
-        </li>
-        <!-- Authentication Links -->
-        {% if current_user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link text-nowrap" href="{{ url_for('account') }}">Account ({{ current_user.username }})</a>
-        </li>
-        <li class="nav-item">
-            <a class="btn btn-outline-danger btn-sm ms-2" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-        {% else %}
-        <li class="nav-item">
-            <a class="btn btn-outline-light btn-sm" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="btn btn-primary btn-sm ms-2" href="{{ url_for('register') }}">Register</a>
-        </li>
-        {% endif %}
-    </ul>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-3 d-flex align-items-center">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="theme-switch" {% if current_theme_class == 'dark-mode' %}checked{% endif %}>
+                            <label class="form-check-label text-light" for="theme-switch">
+                                <i id="theme-icon" class="fas fa-sun"></i>
+                            </label>
+                        </div>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-nowrap" href="{{ url_for('account') }}">Account ({{ current_user.username }})</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-danger btn-sm ms-2" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm ms-2" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
 
-    <main class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} mt-3" role="alert">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <main class="flex-grow-1">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mt-3" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    {% block content %}{% endblock %}
-
-    <footer class="footer text-center">
+    <footer class="footer text-center mt-auto py-3">
         <div class="container">
-            <p>&copy; 2025 OmniTool. All rights reserved.</p>
+            <span class="text-muted">© 2025 OmniTool. All rights reserved.</span>
             <p>
                 <a href="https://github.com/DamiJJJ" target="_blank" rel="noopener noreferrer">GitHub</a> | 
                 <a href="https://www.youtube.com/c/DamiJJJ" target="_blank" rel="noopener noreferrer">YouTube</a>
