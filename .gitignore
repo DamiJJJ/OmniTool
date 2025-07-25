@@ -1,6 +1,8 @@
 __pycache__/
 instance/
+migrations/
 *.db
+.sqlite
 venv/
 .venv/
 *.log

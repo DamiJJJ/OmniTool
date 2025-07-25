@@ -30,17 +30,47 @@
                         <a class="nav-link" href="{{ url_for('todo.todo_list') }}">To-Do list</a>
                     </li>
                 </ul>
-                <div class="form-check form-switch text-light">
-                    <input class="form-check-input" type="checkbox" id="theme-switch">
-                    <label class="form-check-label" for="theme-switch">Dark Theme</label>
-                </div>
+    <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-itemme-3">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="theme-switch">
+                <label class="form-check-label text-light" for="theme-switch">Dark Mode</label>
+            </div>
+        </li>
+        <!-- Authentication Links -->
+        {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link text-nowrap" href="{{ url_for('account') }}">Account ({{ current_user.username }})</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-outline-danger btn-sm ms-2" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('login') }}">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm ms-2" href="{{ url_for('register') }}">Register</a>
+        </li>
+        {% endif %}
+    </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        {% block content %}{% endblock %}
-    </div>
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mt-3" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </main>
+
+    {% block content %}{% endblock %}
 
     <footer class="footer text-center">
         <div class="container">

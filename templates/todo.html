@@ -1,39 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}To-Do list{% endblock %}
+{% block title %}To-Do List - OmniTool{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">To-Do list</h2>
+    <h1 class="mb-4 text-center">To-Do List</h1>
 
-    <form method="POST" action="/todo" class="mb-4">
-        <div class="input-group">
-            <input type="text" class="form-control" placeholder="Add new task" name="task" required>
-            <button class="btn btn-success" type="submit">Add</button>
-        </div>
-    </form>
-
-    {% if todos %}
-    <ul class="list-group">
-        {% for task in todos %}
-        <li class="list-group-item d-flex justify-content-between align-items-center
-                   {% if task.completed %}list-group-item-secondary{% endif %}">
-            <span class="{% if task.completed %}text-decoration-line-through{% endif %}">
-                {{ task.description }}
-            </span>
-            <div>
-                <a href="/todo/complete/{{ task.id }}" class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %} me-2">
-                    {% if task.completed %}Back{% else %}Finish{% endif %}
-                </a>
-                <a href="/todo/delete/{{ task.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure deleting this task?');">
-                    Remove
-                </a>
+    <div class="card p-4 shadow-sm mb-4">
+        <form method="POST" action="{{ url_for('todo.todo_list') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Add a new task..." name="task" required>
+                <button class="btn btn-primary" type="submit">Add Task</button>
             </div>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No tasks on the list. Add some new!</p>
-    {% endif %}
+        </form>
+
+        {% if todos %}
+            <ul class="list-group">
+                {% for task in todos %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}">
+                        <span class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}">
+                            {{ task.description }}
+                        </span>
+                        <div>
+                            <a href="{{ url_for('todo.complete_todo', task_id=task.id) }}" class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %} me-2">
+                                {% if task.completed %}Uncomplete{% else %}Complete{% endif %}
+                            </a>
+                            <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center">No tasks found. Add a new task above!</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -28,7 +28,7 @@ def weather():
 
                 if data['cod'] != '200':
                     error = f"API Error: {data.get('message', 'Unknown error')}"
-                    return render_template('weather.html', current_weather_data=current_weather_data, error=error, today_hourly_forecast=today_hourly_forecast, upcoming_daily_forecast=upcoming_daily_forecast)
+                    return render_template('weather.html', current_weather_data=current_weather_data, error=error, today_hourly_forecast=today_hourly_forecast, upcoming_daily_forecast_grouped=upcoming_daily_forecast_grouped)
 
                 display_city = data['city']['name']
 

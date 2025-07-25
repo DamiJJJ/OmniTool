@@ -52,6 +52,30 @@ body.dark-mode .btn-primary:hover {
     border-color: #717171;
 }
 
+/* Styles for btn-outline-light in Dark Mode (for Login) */
+body.dark-mode .btn-outline-light {
+    color: #f1f1f1;
+    border-color: #555555;
+}
+
+body.dark-mode .btn-outline-light:hover {
+    background-color: #3d3d3d;
+    color: #f1f1f1;
+    border-color: #717171;
+}
+
+/* Styles for btn-outline-danger in Dark Mode (for Logout) */
+body.dark-mode .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+body.dark-mode .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
 body.dark-mode .list-group-item {
     background-color: #282828;
     color: #f1f1f1;
@@ -62,6 +86,10 @@ body.dark-mode .list-group-item.list-group-item-dark {
     background-color: #3d3d3d;
     color: #f1f1f1;
     border-color: #555555;
+}
+
+body.dark-mode .text-muted {
+    color: #b0b0b0 !important;
 }
 
 /* --- Table Styles for Dark Mode --- */
@@ -119,39 +147,39 @@ body.dark-mode .form-select option {
 
 /* --- Accordion Styles for Dark Mode --- */
 body.dark-mode .accordion-item {
-    background-color: #212121; /* Tło pojedynczego elementu akordeonu */
-    border: 1px solid #3d3d3d; /* Ramka elementu akordeonu */
-    color: #f1f1f1; /* Kolor tekstu */
+    background-color: #212121;
+    border: 1px solid #3d3d3d;
+    color: #f1f1f1;
 }
 
 body.dark-mode .accordion-header {
-    background-color: #282828; /* Tło nagłówka akordeonu */
+    background-color: #282828;
     border-color: #3d3d3d;
 }
 
 body.dark-mode .accordion-button {
-    background-color: #282828; /* Tło przycisku nagłówka (nawet jeśli nie ma focusa/hovera) */
-    color: #f1f1f1; /* Kolor tekstu przycisku */
+    background-color: #282828;
+    color: #f1f1f1;
     border-color: #3d3d3d;
 }
 
 body.dark-mode .accordion-button:not(.collapsed) {
-    background-color: #3d3d3d; /* Tło rozwiniętego przycisku nagłówka */
+    background-color: #3d3d3d;
     color: #f1f1f1;
-    box-shadow: none; /* Usuń domyślny box-shadow, który może być jasny */
+    box-shadow: none;
 }
 
 body.dark-mode .accordion-button:focus {
-    border-color: #555555; /* Ramka po focusie */
-    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25); /* Subtelny biały box-shadow */
+    border-color: #555555;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
 }
 
 body.dark-mode .accordion-button::after {
-    filter: invert(1) grayscale(1); /* Odwróć kolor strzałki (np. z czarnej na białą) */
+    filter: invert(1) grayscale(1);
 }
 
 body.dark-mode .accordion-body {
-    background-color: #181818; /* Tło zawartości rozwijanej (jak główne tło body) */
+    background-color: #181818;
     color: #f1f1f1;
     border-top: 1px solid #3d3d3d;
 }
