@@ -8,6 +8,7 @@ from flask import (
     request,
     session,
     jsonify,
+    make_response
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
@@ -45,7 +46,16 @@ def set_theme():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if 'set_lang' in request.args:
+        lang = request.args['set_lang']
+        response = make_response(redirect(url_for('index')))
+        if lang == 'pl':
+            response.set_cookie('googtrans', '/en/pl', max_age=30*24*60*60)
+        elif lang == 'en':
+            response.set_cookie('googtrans', '/en/en', max_age=30*24*60*60)
+        return response
+
+    return render_template('index.html')
 
 
 # --- Initialize extensions ---
