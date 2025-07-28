@@ -47,3 +47,16 @@ class Todo(db.Model):
 
     def __repr__(self):
         return f"<Todo {self.id} for User {self.user_id}>"
+
+
+class FavoriteWeatherLocation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    city_name = db.Column(db.String(100), nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "city_name", name="_user_city_uc"),
+    )
+
+    def __repr__(self):
+        return f"<FavoriteWeatherLocation {self.city_name} for User {self.user_id}>"
