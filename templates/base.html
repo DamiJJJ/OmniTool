@@ -23,7 +23,6 @@
     />
   </head>
   <body class="d-flex flex-column min-vh-100">
-    {# Zostawiamy te klasy na body #}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">OmniTool</a>
@@ -81,9 +80,6 @@
                 href="{{ url_for('logout') }}"
                 >Logout</a
               >
-              <span id="language-switcher-flag" style="cursor: pointer; margin-left: 10px;">
-        <img id="flag-icon" src="{{ url_for('static', filename='img/flag_en.png') }}" alt="Language" style="width: 16px; height: 16px;">
-    </span>
             </li>
             {% else %}
             <li class="nav-item">
@@ -101,6 +97,19 @@
               >
             </li>
             {% endif %}
+            <li class="nav-item">
+              <span
+                id="language-switcher-flag"
+                style="cursor: pointer; margin-left: 10px"
+              >
+                <img
+                  id="flag-icon"
+                  src="{{ url_for('static', filename='img/flag_en.png') }}"
+                  alt="Language"
+                  style="width: 16px; height: 16px"
+                />
+              </span>
+            </li>
           </ul>
         </div>
       </div>
@@ -144,58 +153,62 @@
       crossorigin="anonymous"
     ></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-    <div id="google_translate_element" style="display: none;"></div>
+    <div id="google_translate_element" style="display: none"></div>
 
     <!-- GOOGLE TRANSLATE -->
     <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'pl',
-                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-            }, 'google_translate_element');
-        }
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement(
+          {
+            pageLanguage: "en",
+            includedLanguages: "pl",
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          },
+          "google_translate_element"
+        );
+      }
     </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script
+      type="text/javascript"
+      src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    ></script>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            const flagIcon = document.getElementById('flag-icon');
-            let currentLang = 'en';
+      document.addEventListener("DOMContentLoaded", function () {
+        const flagIcon = document.getElementById("flag-icon");
+        let currentLang = "en";
 
-            function getGoogleTranslateCookie() {
-                const name = "googtrans=";
-                const decodedCookie = decodeURIComponent(document.cookie);
-                const ca = decodedCookie.split(';');
-                for(let i = 0; i < ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) === ' ') {
-                        c = c.substring(1);
-                    }
-                    if (c.indexOf(name) === 0) {
-                        const cookieValue = c.substring(name.length, c.length);
-                        if (cookieValue.includes('/en/pl')) {
-                            return 'pl';
-                        } else if (cookieValue.includes('/en/en')) {
-                            return 'en';
-                        }
-                    }
-                }
-                return 'en';
+        function getGoogleTranslateCookie() {
+          const name = "googtrans=";
+          const decodedCookie = decodeURIComponent(document.cookie);
+          const ca = decodedCookie.split(";");
+          for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === " ") {
+              c = c.substring(1);
             }
+            if (c.indexOf(name) === 0) {
+              const cookieValue = c.substring(name.length, c.length);
+              if (cookieValue.includes("/en/pl")) {
+                return "pl";
+              } else if (cookieValue.includes("/en/en")) {
+                return "en";
+              }
+            }
+          }
+          return "en";
+        }
 
-            currentLang = getGoogleTranslateCookie();
-            flagIcon.src = "/static/img/flag_" + currentLang + ".png";
+        currentLang = getGoogleTranslateCookie();
+        flagIcon.src = "/static/img/flag_" + currentLang + ".png";
 
-            window.toggleLanguage = function() {
-                const nextLang = (currentLang === 'en') ? 'pl' : 'en';
-                location.href = `/?set_lang=${nextLang}`;
-            };
+        window.toggleLanguage = function () {
+          const nextLang = currentLang === "en" ? "pl" : "en";
+          location.href = `/?set_lang=${nextLang}`;
+        };
 
-            flagIcon.addEventListener('click', window.toggleLanguage);
-        });
+        flagIcon.addEventListener("click", window.toggleLanguage);
+      });
     </script>
-</body>
-</html>
   </body>
 </html>
