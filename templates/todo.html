@@ -1,45 +1,43 @@
-{% extends "base.html" %} {% block title %}To-Do List - OmniTool{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}To-Do List - OmniTool{% endblock %} {% block content %}
 <div class="container mt-4">
   <h1 class="mb-4 text-center">To-Do List</h1>
 
   <div class="card p-4 shadow-sm mb-4">
     <form method="POST" action="{{ url_for('todo.todo_list') }}" class="mb-4">
+      {{ form.csrf_token }}
       <div class="input-group">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Add a new task..."
-          name="task"
-          required
-        />
+        {{ form.description(class="form-control", placeholder="Add a new task...", required=True) }}
         <button class="btn btn-primary" type="submit">Add Task</button>
       </div>
+      {% if form.description.errors %}
+      <div class="alert alert-danger mt-2">
+        {% for error in form.description.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
     </form>
 
     {% if todos %}
     <ul class="list-group">
       {% for task in todos %}
-      <li
-        class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}"
-      >
-        <span
-          class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}"
-        >
-          {{ task.description }}
-        </span>
-        <div>
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}">
+        <span class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}"> {{ task.description }} </span>
+        <div class="d-flex gap-2">
           <a
             href="{{ url_for('todo.complete_todo', task_id=task.id) }}"
-            class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %} me-2"
+            class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %}"
+            {#
+            Usunięto
+            me-2
+            #}
           >
             {% if task.completed %}Uncomplete{% else %}Complete{% endif %}
           </a>
-          <a
-            href="{{ url_for('todo.delete_todo', task_id=task.id) }}"
-            class="btn btn-sm btn-danger"
-            >Delete</a
-          >
+          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger" {# Usunięto me-2 #}>Delete</a>
+          <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" {# Usunięto me-2 #} title="Edit Task">
+            <i class="fas fa-edit"></i>
+          </a>
         </div>
       </li>
       {% endfor %}

@@ -33,3 +33,12 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     remember = BooleanField("Remember Me")
     submit = SubmitField("Login")
+
+
+# --- To-Do tasks ---
+class TodoForm(FlaskForm):
+    description = StringField(
+        "Task Description", validators=[DataRequired(), Length(min=1, max=200)]
+    )
+    completed = BooleanField("Completed")
+    submit = SubmitField("Save Task")
