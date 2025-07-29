@@ -38,6 +38,22 @@ class CurrencyLog(db.Model):
         return f"<CurrencyLog {self.from_currency} to {self.to_currency} by User {self.user_id}>"
 
 
+class FavoriteCurrencyPair(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    from_currency = db.Column(db.String(3), nullable=False)  # np. "USD"
+    to_currency = db.Column(db.String(3), nullable=False)  # np. "EUR"
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id", "from_currency", "to_currency", name="_user_currency_pair_uc"
+        ),
+    )
+
+    def __repr__(self):
+        return f"<FavoriteCurrencyPair User {self.user_id}: {self.from_currency}-{self.to_currency}>"
+
+
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(200), nullable=False)
