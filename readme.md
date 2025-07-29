@@ -32,14 +32,16 @@ OmniTool currently offers the following modules and functionalities:
 - **Weather Module**:
   - Displays current weather conditions and hourly/daily forecasts for a specified city.
   - Daily forecasts are presented in **collapsible sections** for detailed viewing.
+  - **Logged users can save their favorite cities** and remove them.
   - **Publicly accessible, no login required.**
   - Utilizes the **OpenWeatherMap API**.
 - **Currency Converter Module**:
   - Allows users to convert between different currencies.
   - **Conversion history is personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
+  - **Users can save their favorite currency pairs** and also remove them if needed.
   - Uses an external API to fetch exchange rates.
 - **To-Do List Module**:
-  - A simple task management application with options to add, mark as complete/incomplete, and delete tasks.
+  - A simple task management application with options to add, mark as complete/incomplete, edit, and delete tasks.
   - **To-do lists are personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
 - **Theme Switcher (Light/Dark Mode)**:
   - Enables dynamic toggling between light and dark themes for the user interface.
@@ -140,7 +142,7 @@ The application will be accessible at `http://127.0.0.1:5000/`.
 
 Plans are to continue developing OmniTool, including:
 
-- **Development of current modules** Development of to-do list, weather forecast, and currency converter modules.
+- **Development of to-do list module:** Implementation of deadlines and priorities.
 - **YouTube Module:** Integration with the YouTube API for searching, displaying and playing videos.
 - **File conversion module:** Implementation of image conversion function (from WEBP to JPG/PNG initially).
 - **Containerization (Docker):** Packaging the application for easier deployment and scalability.

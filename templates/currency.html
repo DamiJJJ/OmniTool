@@ -11,23 +11,23 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="amount" class="form-label">Amount</label>
-                    <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="{{ amount if amount is not none else '1.0' }}" required>
+                    <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="1.00" value="{{ amount if amount is not none else '' }}" required>
                 </div>
                 <div class="col-md-3">
                     <label for="from_currency" class="form-label">From</label>
                     <select class="form-select" id="from_currency" name="from_currency" required>
-                        <option value="" disabled selected>Select currency</option> {# Dodana pusta opcja #}
+                        <option value="" disabled {% if from_currency is none %}selected{% endif %}>Select currency</option>
                         {% for currency_code in currencies %}
-                            <option value="{{ currency_code }}" {% if from_currency == currency_code %}selected{% endif %}>{{ currency_code }}</option>
+                            <option value="{{ currency_code }}" {% if from_currency == currency_code %}selected{% endif %}>{{ currency_code }} - {{ currency_names.get(currency_code, "Unknown Currency") }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="to_currency" class="form-label">To</label>
                     <select class="form-select" id="to_currency" name="to_currency" required>
-                        <option value="" disabled selected>Select currency</option> {# Dodana pusta opcja #}
+                        <option value="" disabled {% if to_currency is none %}selected{% endif %}>Select currency</option>
                         {% for currency_code in currencies %}
-                            <option value="{{ currency_code }}" {% if to_currency == currency_code %}selected{% endif %}>{{ currency_code }}</option>
+                            <option value="{{ currency_code }}" {% if to_currency == currency_code %}selected{% endif %}>{{ currency_code }} - {{ currency_names.get(currency_code, "Unknown Currency") }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -37,11 +37,54 @@
             </div>
         </form>
 
+        {# "Add to Favorites" btn for current pair #}
+        {% if current_user.is_authenticated and from_currency and to_currency %}
+            {% set is_favorite_pair = false %}
+            {% for fav_pair in favorite_currency_pairs %}
+                {% if fav_pair.from_currency == from_currency and fav_pair.to_currency == to_currency %}
+                    {% set is_favorite_pair = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% if not is_favorite_pair %}
+                <form method="POST" action="{{ url_for('currency.add_favorite_pair') }}" class="text-center mt-3">
+                    <input type="hidden" name="from_currency" value="{{ from_currency }}">
+                    <input type="hidden" name="to_currency" value="{{ to_currency }}">
+                    <button type="submit" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-star"></i> Add '{{ from_currency }} to {{ to_currency }}' to Favorites
+                    </button>
+                </form>
+            {% endif %}
+        {% endif %}
+
         {% if converted_amount is not none %}
         <div class="mt-4 text-center">
             <h2 class="alert alert-success">Result: {{ "%.2f"|format(converted_amount) }} {{ to_currency }}</h2>
         </div>
         {% endif %}
+
+        {# Favorite Currency Pairs section #}
+        {% if current_user.is_authenticated and favorite_currency_pairs %}
+        <hr class="my-4">
+        <h3 class="mb-3 text-center">Your Favorite Currency Pairs</h3>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            {% for fav_pair in favorite_currency_pairs %}
+            <div class="btn-group" role="group" aria-label="Favorite Currency Pair">
+                <a href="{{ url_for('currency.currency_converter', from_currency=fav_pair.from_currency, to_currency=fav_pair.to_currency) }}"
+                   class="btn {% if fav_pair.from_currency == from_currency and fav_pair.to_currency == to_currency %}btn-info{% else %}btn-outline-secondary{% endif %} btn-sm">
+                    {{ fav_pair.from_currency }} - {{ currency_names.get(fav_pair.from_currency, "Unknown") }} <i class="fas fa-arrow-right mx-1"></i> {{ fav_pair.to_currency }} - {{ currency_names.get(fav_pair.to_currency, "Unknown") }}
+                </a>
+                <form method="POST" action="{{ url_for('currency.remove_favorite_pair', pair_id=fav_pair.id) }}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from Favorites">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {# Conversion history #}
         {% if currency_logs %}
         <hr class="my-4">
         <h3 class="mb-3 text-center">Your Conversion History</h3>
@@ -61,8 +104,8 @@
                     {% for log in currency_logs %}
                     <tr>
                         <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                        <td>{{ log.from_currency }}</td>
-                        <td>{{ log.to_currency }}</td>
+                        <td>{{ log.from_currency }} - {{ currency_names.get(log.from_currency, "Unknown") }}</td>
+                        <td>{{ log.to_currency }} - {{ currency_names.get(log.to_currency, "Unknown") }}</td>
                         <td>{{ "%.2f"|format(log.amount) }}</td>
                         <td>{{ "%.2f"|format(log.converted_amount) }}</td>
                         <td>{{ "%.4f"|format(log.rate) }}</td>
