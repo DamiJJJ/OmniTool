@@ -8,7 +8,7 @@ from flask import (
     request,
     session,
     jsonify,
-    make_response
+    make_response,
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
@@ -23,6 +23,7 @@ from forms import RegistrationForm, LoginForm
 from modules.weather import weather_bp
 from modules.currency import currency_bp
 from modules.todo import todo_bp
+from modules.conversion import conversion_bp
 
 app = Flask(__name__)
 
@@ -46,16 +47,16 @@ def set_theme():
 
 @app.route("/")
 def index():
-    if 'set_lang' in request.args:
-        lang = request.args['set_lang']
-        response = make_response(redirect(url_for('index')))
-        if lang == 'pl':
-            response.set_cookie('googtrans', '/en/pl', max_age=30*24*60*60)
-        elif lang == 'en':
-            response.set_cookie('googtrans', '/en/en', max_age=30*24*60*60)
+    if "set_lang" in request.args:
+        lang = request.args["set_lang"]
+        response = make_response(redirect(url_for("index")))
+        if lang == "pl":
+            response.set_cookie("googtrans", "/en/pl", max_age=30 * 24 * 60 * 60)
+        elif lang == "en":
+            response.set_cookie("googtrans", "/en/en", max_age=30 * 24 * 60 * 60)
         return response
 
-    return render_template('index.html')
+    return render_template("index.html")
 
 
 # --- Initialize extensions ---
@@ -76,6 +77,7 @@ def load_user(user_id):
 app.register_blueprint(weather_bp)
 app.register_blueprint(currency_bp)
 app.register_blueprint(todo_bp)
+app.register_blueprint(conversion_bp)
 
 # --- Authentication Routes ---
 
