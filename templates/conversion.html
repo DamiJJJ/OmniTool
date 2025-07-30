@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block title %}Image Converter - OmniTool{% endblock %} {% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4 text-center">Image Converter (WEBP to PNG)</h1>
+
+  <div class="card p-4 shadow-sm mb-4">
+    <form method="POST" action="{{ url_for('conversion.convert_image') }}" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="file" class="form-label">Upload WEBP Image</label>
+        <input class="form-control" type="file" id="file" name="file" accept="image/webp" required />
+        <div class="form-text">Only .webp files are supported for conversion.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Convert to PNG</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

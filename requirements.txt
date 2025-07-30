@@ -6,3 +6,4 @@ flask_migrate
 Flask-WTF
 email_validator
 python-dotenv
+Pillow

@@ -40,6 +40,9 @@ OmniTool currently offers the following modules and functionalities:
   - **Conversion history is personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
   - **Users can save their favorite currency pairs** and also remove them if needed.
   - Uses an external API to fetch exchange rates.
+- **Image Converter Module**:
+  - Allows users to convert **WEBP image files to JPG/PNG formats.**
+  - Utilizes the Pillow library for image processing.
 - **To-Do List Module**:
   - A simple task management application with options to add, mark as complete/incomplete, edit, and delete tasks.
   - **To-do lists are personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
@@ -59,6 +62,7 @@ OmniTool currently offers the following modules and functionalities:
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
 - **Environment Management**: `python-dotenv`
 - **API Integrations**: `requests` (OpenWeatherMap, ExchangeRate-API)
+- **Image Processing**: `Pillow`
 
 ---
 
@@ -144,7 +148,6 @@ Plans are to continue developing OmniTool, including:
 
 - **Development of to-do list module:** Implementation of deadlines and priorities.
 - **YouTube Module:** Integration with the YouTube API for searching, displaying and playing videos.
-- **File conversion module:** Implementation of image conversion function (from WEBP to JPG/PNG initially).
 - **Containerization (Docker):** Packaging the application for easier deployment and scalability.
 - **Chat Module:** Implementing real-time chat functionality between users.
 - **Testing:** Writing comprehensive unit and integration tests for all modules.
