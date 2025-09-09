@@ -47,6 +47,11 @@ OmniTool currently offers the following modules and functionalities:
   - A simple task management application with options to add, mark as complete/incomplete, edit, and delete tasks.
   - **To-do lists are personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
   - Includes **deadlines and priorities**.
+- **YouTube Module**:
+  - Integration with the **YouTube Data API** to fetch and display the latest videos from a specific channel.
+  - Implements **infinite** scroll for seamless loading of additional videos.
+  - Features a **built-in video player** (iframe) that allows users to watch videos without leaving the page.
+  - Displays **key video statistics**, including views, likes, and comments.
 - **Theme Switcher (Light/Dark Mode)**:
   - Enables dynamic toggling between light and dark themes for the user interface.
   - User preferences are saved in the **server session and browser's localStorage**, effectively preventing "flash of unstyled content" (FOUC) issues.
@@ -62,7 +67,7 @@ OmniTool currently offers the following modules and functionalities:
 - **Database Migrations**: Flask-Migrate (Alembic)
 - **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
 - **Environment Management**: `python-dotenv`
-- **API Integrations**: `requests` (OpenWeatherMap, ExchangeRate-API)
+- **API Integrations**: `requests` (OpenWeatherMap, ExchangeRate-API, YouTube Data API)
 - **Image Processing**: `Pillow`
 
 ---
@@ -111,11 +116,13 @@ SECRET_KEY='your_very_secret_flask_key'
 DATABASE_URL='sqlite:///site.db' # You can use a different path or database, e.g., postgresql://user:password@host:port/dbname
 OPENWEATHER_API_KEY='your_openweathermap_api_key'
 CURRENCY_API_KEY='your_exchangerateapi_api_key'
+YOUTUBE_API_KEY='your_youtube_api_key'
 ```
 
 - Replace `'your_very_secret_flask_key'` with a unique, strong key.
 - You can obtain `OPENWEATHER_API_KEY` from [OpenWeatherMap](https://openweathermap.org/api).
 - You can obtain `CURRENCY_API_KEY` from [ExchangeRate-API](https://www.exchangerate-api.com/).
+- You can obtain `YOUTUBE_API_KEY` from [Google Cloud Console](https://console.cloud.google.com/).
 
 ### Database Migrations
 
@@ -147,11 +154,12 @@ The application will be accessible at `http://127.0.0.1:5000/`.
 
 Plans are to continue developing OmniTool, including:
 
-- **YouTube Module:** Integration with the YouTube API for searching, displaying and playing videos.
 - **Containerization (Docker):** Packaging the application for easier deployment and scalability.
 - **Chat Module:** Implementing real-time chat functionality between users.
 - **Testing:** Writing comprehensive unit and integration tests for all modules.
 - **Deployment:** Deploying the application to a free hosting platform.
+- **SEO Optimization:** Optimizing the application for better search engine visibility.
+- **Internationalization (i18n):** Full implementation of translations for the entire application.
 
 ---
 

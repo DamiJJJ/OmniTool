@@ -1,0 +1,163 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  {% if video_id %} {# Section for playing a single video #}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe
+              class="embed-responsive-item w-100"
+              style="height: 500px"
+              src="https://www.youtube.com/embed/{{ video_id }}?rel=0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Section for displaying video statistics #} {% if video_stats %}
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h3 class="card-title">{{ video_stats.title }}</h3>
+          <p class="card-text text-muted mb-2">Published: {{ video_stats.published_at | date }}</p>
+          <div class="d-flex justify-content-between text-center">
+            <div class="p-2">
+              <i class="fas fa-eye text-primary me-1"></i>
+              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.view_count) }}</span>
+              <small class="text-muted d-block">Views</small>
+            </div>
+            <div class="p-2">
+              <i class="fas fa-thumbs-up text-success me-1"></i>
+              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.like_count) }}</span>
+              <small class="text-muted d-block">Likes</small>
+            </div>
+            <div class="p-2">
+              <i class="fas fa-comment text-info me-1"></i>
+              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.comment_count) }}</span>
+              <small class="text-muted d-block">Comments</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-3">
+    <a href="{{ url_for('youtube.latest_videos') }}" class="btn btn-secondary mt-3">Back to video list</a>
+  </div>
+  {% else %} {# Section for displaying a list of videos #}
+  <h1 class="mb-4 text-center">Latest YouTube Videos from Dami</h1>
+
+  {% if error %}
+  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% elif videos %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="video-container">
+    {% for video in videos %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}">
+          <img src="{{ video.thumbnail_url }}" class="card-img-top" alt="{{ video.title }}" />
+        </a>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title text-truncate">{{ video.title }}</h5>
+          <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}" class="btn btn-primary mt-auto">Watch in OmniTool</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if next_page_token %}
+  <div id="loader" class="text-center my-4" data-next-page-token="{{ next_page_token }}">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted">Loading more videos...</p>
+  </div>
+  {% endif %} {% else %}
+  <p class="text-center">No videos found. Make sure your channel ID is correct or that the channel contains public videos.</p>
+  {% endif %} {% endif %}
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const videoContainer = document.getElementById("video-container");
+    const loader = document.getElementById("loader");
+    let isLoading = false;
+    let nextPageToken = loader ? loader.dataset.nextPageToken : null;
+
+    if (!loader) {
+      return;
+    }
+
+    const fetchVideos = async (pageToken) => {
+      if (isLoading || !pageToken) return;
+      isLoading = true;
+      loader.style.display = "block";
+
+      try {
+        const response = await fetch(`/youtube/load_more?page_token=${pageToken}`);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+
+        if (data.videos.length > 0) {
+          data.videos.forEach((video) => {
+            const colDiv = document.createElement("div");
+            colDiv.classList.add("col");
+
+            const cardHtml = `
+                            <div class="card h-100 shadow-sm">
+                                <a href="/youtube?video_id=${video.video_id}">
+                                    <img src="${video.thumbnail_url}" class="card-img-top" alt="${video.title}">
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-truncate">${video.title}</h5>
+                                    <a href="/youtube?video_id=${video.video_id}" class="btn btn-primary mt-auto">Watch in OmniTool</a>
+                                </div>
+                            </div>
+                        `;
+            colDiv.innerHTML = cardHtml;
+            videoContainer.appendChild(colDiv);
+          });
+        }
+
+        nextPageToken = data.next_page_token;
+        if (!nextPageToken) {
+          loader.style.display = "none";
+        }
+      } catch (error) {
+        console.error("Failed to fetch more videos:", error);
+        loader.style.display = "none";
+      } finally {
+        isLoading = false;
+        if (nextPageToken) {
+          loader.dataset.nextPageToken = nextPageToken;
+        }
+      }
+    };
+
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+        if (!isLoading && nextPageToken) {
+          fetchVideos(nextPageToken);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+  });
+</script>
+
+{% endblock %}

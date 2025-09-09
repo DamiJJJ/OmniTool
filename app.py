@@ -19,11 +19,15 @@ from extensions import db, migrate, login_manager
 from models import CurrencyLog, Todo, User
 from forms import RegistrationForm, LoginForm
 
+# --- Import custom filters ---
+from utils import format_date
+
 # --- Import modules ---
 from modules.weather import weather_bp
 from modules.currency import currency_bp
 from modules.todo import todo_bp
 from modules.conversion import conversion_bp
+from modules.youtube import youtube_bp
 
 app = Flask(__name__)
 
@@ -33,6 +37,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "sqlite:///site.db"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# --- Register custom Jinja2 filters ---
+app.jinja_env.filters["date"] = format_date
 
 
 @app.route("/set-theme", methods=["POST"])
@@ -78,10 +85,10 @@ app.register_blueprint(weather_bp)
 app.register_blueprint(currency_bp)
 app.register_blueprint(todo_bp)
 app.register_blueprint(conversion_bp)
+app.register_blueprint(youtube_bp)
+
 
 # --- Authentication Routes ---
-
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
