@@ -42,13 +42,20 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.jinja_env.filters["date"] = format_date
 
 
+@app.before_request
+def before_request():
+    if "theme" in request.cookies:
+        session["theme"] = request.cookies.get("theme")
+
+
 @app.route("/set-theme", methods=["POST"])
 def set_theme():
     data = request.get_json()
     theme = data.get("theme")
     if theme in ["dark", "light"]:
-        session["theme"] = theme
-        return jsonify(success=True)
+        response = jsonify(success=True)
+        response.set_cookie("theme", theme, max_age=30 * 24 * 60 * 60)
+        return response
     return jsonify(success=False), 400
 
 
@@ -76,7 +83,6 @@ login_manager.login_message_category = "info"
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Callback function for Flask-Login to reload the user object from the user ID stored in the session."""
     return User.query.get(int(user_id))
 
 
