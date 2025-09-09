@@ -1,6 +1,20 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import (
+    StringField,
+    PasswordField,
+    SubmitField,
+    BooleanField,
+    DateField,
+    SelectField,
+)
+from wtforms.validators import (
+    DataRequired,
+    Length,
+    Email,
+    EqualTo,
+    ValidationError,
+    Optional,
+)
 from models import User
 
 
@@ -39,6 +53,13 @@ class LoginForm(FlaskForm):
 class TodoForm(FlaskForm):
     description = StringField(
         "Task Description", validators=[DataRequired(), Length(min=1, max=200)]
+    )
+    deadline = DateField("Deadline", validators=[Optional()])
+    priority = SelectField(
+        "Priority",
+        choices=[(3, "Low"), (2, "Medium"), (1, "High")],
+        coerce=int,
+        validators=[Optional()],
     )
     completed = BooleanField("Completed")
     submit = SubmitField("Save Task")

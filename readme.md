@@ -46,6 +46,7 @@ OmniTool currently offers the following modules and functionalities:
 - **To-Do List Module**:
   - A simple task management application with options to add, mark as complete/incomplete, edit, and delete tasks.
   - **To-do lists are personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
+  - Includes **deadlines and priorities**.
 - **Theme Switcher (Light/Dark Mode)**:
   - Enables dynamic toggling between light and dark themes for the user interface.
   - User preferences are saved in the **server session and browser's localStorage**, effectively preventing "flash of unstyled content" (FOUC) issues.
@@ -146,7 +147,6 @@ The application will be accessible at `http://127.0.0.1:5000/`.
 
 Plans are to continue developing OmniTool, including:
 
-- **Development of to-do list module:** Implementation of deadlines and priorities.
 - **YouTube Module:** Integration with the YouTube API for searching, displaying and playing videos.
 - **Containerization (Docker):** Packaging the application for easier deployment and scalability.
 - **Chat Module:** Implementing real-time chat functionality between users.

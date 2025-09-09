@@ -14,8 +14,15 @@ def todo_list():
 
     if form.validate_on_submit():
         task_description = form.description.data
+        deadline = form.deadline.data
+        priority = form.priority.data
         try:
-            new_task = Todo(description=task_description, user_id=current_user.id)
+            new_task = Todo(
+                description=task_description,
+                user_id=current_user.id,
+                deadline=deadline,
+                priority=priority,
+            )
             db.session.add(new_task)
             db.session.commit()
             flash("Task added successfully!", "success")
@@ -48,6 +55,8 @@ def edit_todo(task_id):
     if form.validate_on_submit():
         task.description = form.description.data
         task.completed = form.completed.data
+        task.deadline = form.deadline.data
+        task.priority = form.priority.data
         try:
             db.session.commit()
             flash("Task updated successfully!", "success")
@@ -58,6 +67,8 @@ def edit_todo(task_id):
     elif request.method == "GET":
         form.description.data = task.description
         form.completed.data = task.completed
+        form.deadline.data = task.deadline
+        form.priority.data = task.priority
 
     return render_template(
         "edit_todo.html", title="Edit Task", form=form, task_id=task.id
@@ -96,6 +107,6 @@ def delete_todo(task_id):
         db.session.commit()
         flash("Task deleted successfully!", "success")
     except Exception as e:
-        flash(f"Error deleting task: {e}", "danger")
+        flash("Error deleting task: %s" % e, "danger")
         db.session.rollback()
     return redirect(url_for("todo.todo_list"))

@@ -5,10 +5,21 @@
   <div class="card p-4 shadow-sm mb-4">
     <form method="POST" action="{{ url_for('todo.todo_list') }}" class="mb-4">
       {{ form.csrf_token }}
-      <div class="input-group">
+      <div class="mb-3">
+        <label for="description" class="form-label">Task Description</label>
         {{ form.description(class="form-control", placeholder="Add a new task...", required=True) }}
-        <button class="btn btn-primary" type="submit">Add Task</button>
       </div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="deadline" class="form-label">Deadline</label>
+          {{ form.deadline(class="form-control") }}
+        </div>
+        <div class="col-md-6">
+          <label for="priority" class="form-label">Priority</label>
+          {{ form.priority(class="form-select") }}
+        </div>
+      </div>
+      <button class="btn btn-primary w-100" type="submit">Add Task</button>
       {% if form.description.errors %}
       <div class="alert alert-danger mt-2">
         {% for error in form.description.errors %}
@@ -22,20 +33,24 @@
     <ul class="list-group">
       {% for task in todos %}
       <li class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}">
-        <span class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}"> {{ task.description }} </span>
+        <div>
+          <span class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}">{{ task.description }}</span>
+          {% if task.priority %} {% if task.priority == 1 %}
+          <span class="badge bg-danger ms-2">High Priority</span>
+          {% elif task.priority == 2 %}
+          <span class="badge bg-warning text-dark ms-2">Medium Priority</span>
+          {% else %}
+          <span class="badge bg-success ms-2">Low Priority</span>
+          {% endif %} {% endif %} {% if task.deadline %}
+          <small class="text-muted ms-2"> Deadline: {{ task.deadline.strftime('%Y-%m-%d') }} </small>
+          {% endif %}
+        </div>
         <div class="d-flex gap-2">
-          <a
-            href="{{ url_for('todo.complete_todo', task_id=task.id) }}"
-            class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %}"
-            {#
-            Usunięto
-            me-2
-            #}
-          >
+          <a href="{{ url_for('todo.complete_todo', task_id=task.id) }}" class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %}">
             {% if task.completed %}Uncomplete{% else %}Complete{% endif %}
           </a>
-          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger" {# Usunięto me-2 #}>Delete</a>
-          <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" {# Usunięto me-2 #} title="Edit Task">
+          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
+          <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" title="Edit Task">
             <i class="fas fa-edit"></i>
           </a>
         </div>
