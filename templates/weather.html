@@ -9,7 +9,7 @@
         <button class="btn btn-primary" type="submit">Show Weather</button>
       </div>
     </form>
-
+    <button id="get-location-btn" class="btn btn-secondary mt-2"><i class="fas fa-location-arrow"></i> Use my current location</button>
     {% if current_user.is_authenticated %} {% if favorite_locations %}
     <hr />
     <h4 class="mb-3">Your Favorite Locations:</h4>
@@ -118,4 +118,37 @@
     {% endif %} {% endif %}
   </div>
 </div>
+<script>
+  document.getElementById("get-location-btn").addEventListener("click", () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          window.location.href = "{{ url_for('weather.weather') }}?lat=" + lat + "&lon=" + lon;
+        },
+        (error) => {
+          let errorMessage;
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = "Permission to access location was denied.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "Location information is unavailable.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "The request to get user location timed out.";
+              break;
+            case error.UNKNOWN_ERROR:
+              errorMessage = "An unknown error occurred.";
+              break;
+          }
+          alert("Geolocation Error: " + errorMessage + ". Please enter your city manually.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser. Please enter your city manually.");
+    }
+  });
+</script>
 {% endblock %}

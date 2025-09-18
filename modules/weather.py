@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, request, flash, redirect, url_for
-import requests
 import os
+import requests
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from datetime import datetime
 from flask_login import login_required, current_user
 from extensions import db
@@ -15,6 +15,20 @@ if not OPENWEATHER_API_KEY:
     )
 
 
+def get_city_name_from_coords(lat, lon):
+    geo_url = f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={OPENWEATHER_API_KEY}"
+    try:
+        response = requests.get(geo_url)
+        response.raise_for_status()
+        data = response.json()
+        if data and len(data) > 0:
+            return data[0]["name"], None
+        else:
+            return None, "City not found for given coordinates."
+    except requests.exceptions.RequestException as e:
+        return None, f"API connection error during reverse geocoding: {e}"
+
+
 def get_weather_data(city):
     forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=en"
 
@@ -24,7 +38,10 @@ def get_weather_data(city):
         data = response.json()
 
         if data["cod"] != "200":
-            return None, f"API Error: {data.get('message', 'Unknown error for {city}')}"
+            return (
+                None,
+                f"API Error: {data.get('message', f'Unknown error for {city}')}",
+            )
 
         display_city = data["city"]["name"]
 
@@ -134,22 +151,37 @@ def weather():
     error = None
     city_to_display = None
 
+    # Check for location from coordinates
+    lat = request.args.get("lat")
+    lon = request.args.get("lon")
+    if lat and lon:
+        city_to_display, error = get_city_name_from_coords(lat, lon)
+        if error:
+            flash(f"Error fetching location: {error}", "danger")
+        else:
+            flash(
+                f"Showing weather for your current location: {city_to_display}", "info"
+            )
+
+    # Check for a city name from the form or URL
+    if not city_to_display:
+        if request.method == "POST":
+            city = request.form.get("city")
+            if city:
+                city_to_display = city
+            else:
+                error = "Please enter a city name."
+        elif request.args.get("city"):
+            city_to_display = request.args.get("city")
+
+    # Fallback to a favorite location
     favorite_locations = []
     if current_user.is_authenticated:
         favorite_locations = FavoriteWeatherLocation.query.filter_by(
             user_id=current_user.id
         ).all()
-
-    if request.method == "POST":
-        city = request.form.get("city")
-        if city:
-            city_to_display = city
-        else:
-            error = "Please enter a city name."
-    elif request.args.get("city"):
-        city_to_display = request.args.get("city")
-    elif current_user.is_authenticated and favorite_locations:
-        city_to_display = favorite_locations[0].city_name
+        if not city_to_display and favorite_locations:
+            city_to_display = favorite_locations[0].city_name
 
     if city_to_display:
         weather_results, weather_error = get_weather_data(city_to_display)
