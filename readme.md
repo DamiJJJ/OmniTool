@@ -4,6 +4,10 @@
 ![Flask](https://img.shields.io/badge/Flask-framework-lightgrey.svg)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple.svg)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-green.svg)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-blue.svg)
+![OpenWeather](https://img.shields.io/badge/API-OpenWeatherMap-orange.svg)
+![YouTube](https://img.shields.io/badge/API-YouTube-red.svg)
+![ExchangeRate](https://img.shields.io/badge/API-ExchangeRate-yellow.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 OmniTool is a versatile web application built with **Python** and the **Flask** framework, leveraging **Bootstrap 5** for its user interface styling. The project's goal is to create a central hub where users can access various useful tools and services.
@@ -12,14 +16,15 @@ OmniTool is a versatile web application built with **Python** and the **Flask** 
 
 1.  [**Features**](#features)
 2.  [**Technologies Used**](#technologies-used)
-3.  [**Getting Started Locally**](#getting-started-locally)
+3.  [**Live Application**](#live-application)
+4.  [**Getting Started Locally**](#getting-started-locally)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
     - [API Keys Configuration](#api-keys-configuration)
     - [Database Migrations](#database-migrations)
     - [Running the Application](#running-the-application)
-4.  [**Upcoming Enhancements**](#upcoming-enhancements)
-5.  [**License**](#license)
+5.  [**Upcoming Enhancements**](#upcoming-enhancements)
+6.  [**License**](#license)
 
 ---
 
@@ -58,17 +63,19 @@ OmniTool currently offers the following modules and functionalities:
 
 ---
 
+## Live Application
+
+The OmniTool application is deployed and available for testing:  
+👉 [https://omnitool.onrender.com/](https://omnitool.onrender.com/)
+
+---
+
 ## **Technologies Used**
 
-- **Backend**: Python, Flask
-- **Database**: SQLAlchemy (ORM), SQLite
-- **Authentication**: Flask-Login, Werkzeug Security
-- **Forms**: Flask-WTF, WTForms
-- **Database Migrations**: Flask-Migrate (Alembic)
-- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap 5
-- **Environment Management**: `python-dotenv`
-- **API Integrations**: `requests` (OpenWeatherMap, ExchangeRate-API, YouTube Data API)
-- **Image Processing**: `Pillow`
+**Backend:** Python, Flask, Flask-SQLAlchemy, Flask-Login, Flask-Migrate  
+**Frontend:** HTML5, CSS3, JavaScript, Bootstrap 5  
+**Database:** PostgreSQL (production), SQLite (development)  
+**APIs:** OpenWeatherMap API, YouTube Data API v3, ExchangeRate-API
 
 ---
 
@@ -78,10 +85,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Ensure you have the following installed:
-
-- **Python 3.x** (Python 3.9+ recommended)
-- **pip** (Python package installer)
+- **Python 3.8+**
+- **pip**
 
 ### Installation
 
@@ -113,10 +118,14 @@ Create a `.env` file in the root directory of your project and add your API keys
 
 ```dotenv
 SECRET_KEY='your_very_secret_flask_key'
-DATABASE_URL='sqlite:///site.db' # You can use a different path or database, e.g., postgresql://user:password@host:port/dbname
+DATABASE_URL='postgresql://your_db_user:your_db_password@your_db_host:5432/your_db_name'
 OPENWEATHER_API_KEY='your_openweathermap_api_key'
 CURRENCY_API_KEY='your_exchangerateapi_api_key'
 YOUTUBE_API_KEY='your_youtube_api_key'
+
+# For Local Development Only
+FLASK_ENV='development' # or 'production'
+FLASK_APP='app.py'
 ```
 
 - Replace `'your_very_secret_flask_key'` with a unique, strong key.
@@ -130,12 +139,12 @@ For the first time running the project, or after making changes to your data mod
 
 ```bash
 flask db init
-flask db migrate -m "Initial migration with User, CurrencyLog, Todo models"
+flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-- `flask db init` - Initializes the Alembic environment (one-time setup).
-- `flask db migrate -m "..."` - Creates a migration script based on changes in `models.py`.
+- `flask db init` - Initializes Alembic (one-time setup).
+- `flask db migrate -m "..."` - Creates migration script.
 - `flask db upgrade` - Applies the migrations to the database.
 
 ### Running the Application
@@ -157,7 +166,6 @@ Plans are to continue developing OmniTool, including:
 - **Containerization (Docker):** Packaging the application for easier deployment and scalability.
 - **Chat Module:** Implementing real-time chat functionality between users.
 - **Testing:** Writing comprehensive unit and integration tests for all modules.
-- **Deployment:** Deploying the application to a free hosting platform.
 - **SEO Optimization:** Optimizing the application for better search engine visibility.
 - **Internationalization (i18n):** Full implementation of translations for the entire application.
 
