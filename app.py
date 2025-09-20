@@ -33,10 +33,17 @@ app = Flask(__name__)
 
 # --- Basic Conf ---
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "a_very_secret_key_for_dev")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL", "sqlite:///site.db"
-)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+is_production = os.environ.get("FLASK_ENV") == "production"
+if is_production and "DATABASE_URL" in os.environ:
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"].replace(
+        "postgres://", "postgresql://"
+    )
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "DATABASE_URL", "sqlite:///site.db"
+    )
 
 # --- Register custom Jinja2 filters ---
 app.jinja_env.filters["date"] = format_date

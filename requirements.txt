@@ -7,3 +7,4 @@ Flask-WTF
 email_validator
 python-dotenv
 Pillow
+psycopg2-binary
