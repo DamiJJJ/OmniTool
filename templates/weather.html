@@ -142,12 +142,16 @@
             case error.UNKNOWN_ERROR:
               errorMessage = "An unknown error occurred.";
               break;
+            default:
+              errorMessage = "An unknown geolocation error occurred.";
+              break;
           }
-          alert("Geolocation Error: " + errorMessage + ". Please enter your city manually.");
+          window.location.href = "{{ url_for('weather.weather') }}?error=" + encodeURIComponent(errorMessage);
         }
       );
     } else {
-      alert("Geolocation is not supported by your browser. Please enter your city manually.");
+      const errorMessage = "Your browser does not support geolocation. Please enter a city manually.";
+      window.location.href = "{{ url_for('weather.weather') }}?error=" + encodeURIComponent(errorMessage);
     }
   });
 </script>
