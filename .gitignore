@@ -1,6 +1,6 @@
 __pycache__/
 instance/
-migrations/
+# migrations/
 *.db
 .sqlite
 venv/
