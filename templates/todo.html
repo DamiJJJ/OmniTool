@@ -32,9 +32,15 @@
     {% if todos %}
     <ul class="list-group">
       {% for task in todos %}
-      <li class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}">
-        <div>
-          <span class="{% if task.completed %}text-decoration-line-through text-muted{% endif %}">{{ task.description }}</span>
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}"
+        data-task-id="{{ task.id }}"
+      >
+        <div class="d-flex align-items-center">
+          <form class="complete-form me-3">
+            <input class="form-check-input" type="checkbox" name="completed_task" {% if task.completed %} checked {% endif %} />
+          </form>
+          <span class="task-description {% if task.completed %}text-decoration-line-through text-muted{% endif %}">{{ task.description }}</span>
           {% if task.priority %} {% if task.priority == 1 %}
           <span class="badge bg-danger ms-2">High Priority</span>
           {% elif task.priority == 2 %}
@@ -46,12 +52,11 @@
           {% endif %}
         </div>
         <div class="d-flex gap-2">
-          <a href="{{ url_for('todo.complete_todo', task_id=task.id) }}" class="btn btn-sm {% if task.completed %}btn-warning{% else %}btn-success{% endif %}">
-            {% if task.completed %}Uncomplete{% else %}Complete{% endif %}
-          </a>
-          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger">Delete</a>
           <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" title="Edit Task">
             <i class="fas fa-edit"></i>
+          </a>
+          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger" title="Delete Task">
+            <i class="fas fa-trash-alt"></i>
           </a>
         </div>
       </li>
@@ -62,4 +67,34 @@
     {% endif %}
   </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const completeForms = document.querySelectorAll(".complete-form");
+    completeForms.forEach((form) => {
+      const checkbox = form.querySelector(".form-check-input");
+      checkbox.addEventListener("change", (e) => {
+        const listItem = form.closest(".list-group-item");
+        const taskId = listItem.dataset.taskId;
+        const isChecked = e.target.checked;
+        const taskDescription = listItem.querySelector(".task-description");
+
+        checkbox.disabled = true;
+
+        fetch(`/todo/complete/${taskId}`)
+          .then((response) => {
+            listItem.classList.toggle("list-group-item-success", isChecked);
+            taskDescription.classList.toggle("text-decoration-line-through", isChecked);
+            taskDescription.classList.toggle("text-muted", isChecked);
+          })
+          .catch((error) => {
+            console.error("Error completing task:", error);
+            checkbox.checked = !isChecked;
+          })
+          .finally(() => {
+            checkbox.disabled = false;
+          });
+      });
+    });
+  });
+</script>
 {% endblock %}
