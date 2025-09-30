@@ -56,6 +56,7 @@ def get_weather_data(city):
             "feels_like": first_forecast["main"]["feels_like"],
         }
 
+        # --- Hourly and Daily Forecast ---
         today = datetime.now().date()
         today_hourly_forecast = []
         upcoming_daily_forecast_grouped = []
@@ -91,10 +92,8 @@ def get_weather_data(city):
 
                 representative_forecast = None
                 for item in day_forecast_items:
-                    if (
-                        datetime.fromtimestamp(item["dt"]).hour >= 12
-                        and datetime.fromtimestamp(item["dt"]).hour < 15
-                    ):
+                    dt_hour = datetime.fromtimestamp(item["dt"]).hour
+                    if 12 <= dt_hour < 15:
                         representative_forecast = item
                         break
                 if not representative_forecast and day_forecast_items:
@@ -151,19 +150,21 @@ def weather():
     error = None
     city_to_display = None
 
-    # Check for location from coordinates
+    geolocation_error = request.args.get("error")
+    if geolocation_error:
+        flash(f"Geolocation Error: {geolocation_error}", "danger")
+
     lat = request.args.get("lat")
     lon = request.args.get("lon")
     if lat and lon:
-        city_to_display, error = get_city_name_from_coords(lat, lon)
-        if error:
-            flash(f"Error fetching location: {error}", "danger")
+        city_to_display, geo_error = get_city_name_from_coords(lat, lon)
+        if geo_error:
+            flash(f"Error fetching location: {geo_error}", "danger")
         else:
             flash(
                 f"Showing weather for your current location: {city_to_display}", "info"
             )
 
-    # Check for a city name from the form or URL
     if not city_to_display:
         if request.method == "POST":
             city = request.form.get("city")
@@ -174,7 +175,6 @@ def weather():
         elif request.args.get("city"):
             city_to_display = request.args.get("city")
 
-    # Fallback to a favorite location
     favorite_locations = []
     if current_user.is_authenticated:
         favorite_locations = FavoriteWeatherLocation.query.filter_by(
@@ -208,6 +208,7 @@ def weather():
 @weather_bp.route("/weather/add_favorite/<city_name>", methods=["POST"])
 @login_required
 def add_favorite_weather(city_name):
+    """Adds a given city to the current user's favorite weather locations."""
     existing_favorite = FavoriteWeatherLocation.query.filter_by(
         user_id=current_user.id, city_name=city_name
     ).first()
@@ -232,6 +233,7 @@ def add_favorite_weather(city_name):
 @weather_bp.route("/weather/remove_favorite/<int:location_id>", methods=["POST"])
 @login_required
 def remove_favorite_weather(location_id):
+    """Removes a favorite location by its ID."""
     favorite_location = FavoriteWeatherLocation.query.get_or_404(location_id)
 
     if favorite_location.user_id != current_user.id:
