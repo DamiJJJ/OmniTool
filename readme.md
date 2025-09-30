@@ -45,8 +45,9 @@ OmniTool currently offers the following modules and functionalities:
   - **Conversion history is personalized** and stored in the **SQLite (SQLAlchemy)** database for each user.
   - **Users can save their favorite currency pairs** and also remove them if needed.
   - Uses an external API to fetch exchange rates.
-- **Image Converter Module**:
-  - Allows users to convert **WEBP image files to JPG/PNG formats.**
+- **File Converter Module**:
+  - Allows users to convert **between most popular image formats(JPG, PNG, WEBP, GIF, BMP, TIFF).**
+  - **SOON** Documents (PDF, DOCX) conversion.
   - Utilizes the Pillow library for image processing.
 - **To-Do List Module**:
   - A simple task management application with options to add, mark as complete/incomplete, edit, and delete tasks.

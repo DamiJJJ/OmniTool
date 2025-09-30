@@ -1,16 +1,126 @@
-{% extends "base.html" %} {% block title %}Image Converter - OmniTool{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}File Converter - OmniTool{% endblock %} {% block content %}
 <div class="container mt-4">
-  <h1 class="mb-4 text-center">Image Converter (WEBP to PNG)</h1>
+  <h1 class="mb-4 text-center">File Converter</h1>
 
   <div class="card p-4 shadow-sm mb-4">
-    <form method="POST" action="{{ url_for('conversion.convert_image') }}" enctype="multipart/form-data">
-      <div class="mb-3">
-        <label for="file" class="form-label">Upload WEBP Image</label>
-        <input class="form-control" type="file" id="file" name="file" accept="image/webp" required />
-        <div class="form-text">Only .webp files are supported for conversion.</div>
+    <form id="conversionForm" method="POST" action="{{ url_for('conversion.convert_image') }}" enctype="multipart/form-data">
+      {{ form.csrf_token }}
+
+      <div class="row g-3 mb-4">
+        <!-- Source format selection -->
+        <div class="col-md-6">
+          <label for="{{ form.source_format.id }}" class="form-label">Convert From:</label>
+          {{ form.source_format(class="form-select") }}
+        </div>
+
+        <!-- Target format selection -->
+        <div class="col-md-6">
+          <label for="{{ form.target_format.id }}" class="form-label">Convert To:</label>
+          {{ form.target_format(class="form-select") }}
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary">Convert to PNG</button>
+
+      <!-- Drag & Drop Area -->
+      <div id="dropArea" class="drop-area mb-3">
+        <i class="fas fa-cloud-upload-alt fa-3x mb-2 text-primary"></i>
+        <p class="drop-text">Przeciągnij i upuść plik obrazu tutaj, lub kliknij, aby wybrać.</p>
+        <p id="fileNameDisplay" class="text-success fw-bold"></p>
+        <div class="form-text">Supported formats: JPG, PNG, WEBP, GIF, BMP, TIFF.</div>
+      </div>
+
+      <!-- Hidden file input field, which will be populated by JS -->
+      <input type="file" id="fileInput" name="file" style="display: none" required />
+
+      <button type="submit" id="submitButton" class="btn btn-primary w-100" disabled>Convert Image</button>
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const dropArea = document.getElementById("dropArea");
+    const fileInput = document.getElementById("fileInput");
+    const fileNameDisplay = document.getElementById("fileNameDisplay");
+    const submitButton = document.getElementById("submitButton");
+    const isDarkMode = document.body.classList.contains("dark-mode");
+
+    // Functions to highlight and unhighlight the drop area
+    function highlight(e) {
+      e.preventDefault();
+      dropArea.classList.add(isDarkMode ? "highlight-dark" : "highlight");
+    }
+
+    function unhighlight(e) {
+      e.preventDefault();
+      dropArea.classList.remove("highlight", "highlight-dark");
+    }
+
+    // Add drag event listeners
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle file drop event
+    dropArea.addEventListener("drop", handleDrop, false);
+
+    function handleDrop(e) {
+      let dt = e.dataTransfer;
+      let files = dt.files;
+      handleFiles(files);
+    }
+
+    // Handle click event on the drop area (redirects to standard file dialog)
+    dropArea.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    // Handle file selection via standard input
+    fileInput.addEventListener("change", (e) => {
+      handleFiles(e.target.files);
+    });
+
+    // Main function to process selected/dropped files
+    function handleFiles(files) {
+      if (files.length !== 1) {
+        fileNameDisplay.textContent = "Please select only one file.";
+        submitButton.disabled = true;
+        fileInput.value = "";
+        return;
+      }
+
+      const file = files[0];
+      const maxFileSizeMB = 10;
+
+      // Basic type validation
+      if (!file.type.startsWith("image/")) {
+        fileNameDisplay.textContent = `File "${file.name}" is not an image.`;
+        submitButton.disabled = true;
+        fileInput.value = "";
+        return;
+      }
+
+      // Size validation
+      if (file.size > maxFileSizeMB * 1024 * 1024) {
+        fileNameDisplay.textContent = `File "${file.name}" is too large (max ${maxFileSizeMB} MB).`;
+        submitButton.disabled = true;
+        fileInput.value = "";
+        return;
+      }
+
+      fileNameDisplay.textContent = `Wybrany plik: ${file.name}`;
+      submitButton.disabled = false;
+
+      // If the file was dropped, we need to programmatically assign it to the file input
+      if (fileInput.files.length === 0 || fileInput.files[0] !== file) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+      }
+    }
+  });
+</script>
 {% endblock %}

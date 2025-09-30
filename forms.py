@@ -63,3 +63,27 @@ class TodoForm(FlaskForm):
     )
     completed = BooleanField("Completed")
     submit = SubmitField("Save Task")
+
+
+# --- Conversion Module ---
+class ConversionForm(FlaskForm):
+    IMAGE_FORMAT_CHOICES = [
+        ("JPEG", "JPEG"),
+        ("PNG", "PNG"),
+        ("WEBP", "WEBP"),
+        ("GIF", "GIF"),
+        ("BMP", "BMP"),
+        ("TIFF", "TIFF"),
+    ]
+
+    source_format = SelectField(
+        "Convert From",
+        choices=IMAGE_FORMAT_CHOICES,
+        validators=[DataRequired()],
+    )
+    target_format = SelectField(
+        "Convert To",
+        choices=IMAGE_FORMAT_CHOICES,
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Convert Image")
