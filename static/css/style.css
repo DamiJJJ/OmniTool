@@ -232,37 +232,44 @@ body.dark-mode .hourly-forecast-scroll::-webkit-scrollbar-thumb:hover {
 body.dark-mode .form-text {
   color: #b0b0b0;
 }
-/* Img conversion Drag & Drop */
-.drop-area {
-  border: 3px dashed #ced4da;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
+/* Custom styles for Drag & Drop area */
+.border-dashed {
+  border-style: dashed !important;
+}
+.transition-color {
   transition: background-color 0.2s, border-color 0.2s;
 }
-
-.drop-area.highlight {
+.cursor-pointer {
+  cursor: pointer;
+}
+#drop-area.drag-over {
   background-color: #e9ecef;
-  border-color: #0d6efd;
+  border-color: #0d6efd !important;
+}
+body.dark-mode #drop-area.drag-over {
+  background-color: #303030;
+}
+.transition-transform {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.active-module-link .card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.25) !important;
+  cursor: pointer;
 }
 
-.drop-area.highlight-dark {
-  background-color: #333;
-  border-color: #4dc2ff;
+/* Style for disabled modules - makes them gray and non-clickable */
+.disabled-module-card {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
-.drop-text {
-  font-weight: 600;
-  color: #6c757d;
-}
-
-/* Dark mode for Drag & Drop */
-body.dark-mode .drop-area {
-  border-color: #495057;
+/* Dark Mode Adjustments */
+body.dark-mode .active-module-link .card {
   background-color: #212121;
+  border: 1px solid #3d3d3d;
 }
-
-body.dark-mode .drop-text {
-  color: #aaa;
+body.dark-mode .active-module-link .card:hover {
+  background-color: #303030;
 }

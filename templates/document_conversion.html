@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block title %}Document & PDF Tools{% endblock %} {% block content %}
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Document & PDF Tools</li>
+    </ol>
+  </nav>
+  <h1 class="mb-4 text-center text-muted">Document & PDF Tools (Under Development)</h1>
+  <div class="alert alert-info text-center">
+    This module is currently being implemented. Soon you will be able to convert DOCX, TXT, CSV files, and perform essential PDF operations like merging and
+    splitting.
+  </div>
+</div>
+{% endblock %}
