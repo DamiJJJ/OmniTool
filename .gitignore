@@ -1,11 +1,56 @@
-__pycache__/
-instance/
-*.db
-.sqlite
+# Virtual Environment
 venv/
-.venv/
-*.log
-*.swp
-*~
-.DS_Store # MacOS
+env/
+ENV/
+.venv
+
+# Python
+pycache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Database
+*.db
+*.sqlite3
+*.sqlite
+instance/
+site.db
+
+# Environment Variables
 .env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Flask
+instance/
+.webassets-cache
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Migrations (optional - uncomment if you want to exclude)
+migrations/
