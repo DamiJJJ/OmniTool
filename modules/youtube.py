@@ -22,7 +22,7 @@ def latest_videos():
         video_stats = {}
         try:
             stats_url = f"https://www.googleapis.com/youtube/v3/videos?key={YOUTUBE_API_KEY}&id={video_id}&part=snippet,statistics"
-            stats_response = requests.get(stats_url)
+            stats_response = requests.get(stats_url, timeout=(5, 10))
             stats_response.raise_for_status()
             stats_data = stats_response.json()
 
@@ -54,7 +54,7 @@ def latest_videos():
 
     try:
         url = f"https://www.googleapis.com/youtube/v3/search?key={YOUTUBE_API_KEY}&channelId={channel_id}&part=snippet,id&order=date&maxResults=10"
-        response = requests.get(url)
+        response = requests.get(url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
 
@@ -102,7 +102,7 @@ def load_more_videos():
 
     try:
         url = f"https://www.googleapis.com/youtube/v3/search?key={YOUTUBE_API_KEY}&channelId={channel_id}&part=snippet,id&order=date&maxResults=10&pageToken={page_token}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
 

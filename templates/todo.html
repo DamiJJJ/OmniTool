@@ -37,7 +37,8 @@
         data-task-id="{{ task.id }}"
       >
         <div class="d-flex align-items-center">
-          <form class="complete-form me-3">
+          <form class="complete-form me-3" method="POST" action="{{ url_for('todo.complete_todo', task_id=task.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             <input class="form-check-input" type="checkbox" name="completed_task" {% if task.completed %} checked {% endif %} />
           </form>
           <span class="task-description {% if task.completed %}text-decoration-line-through text-muted{% endif %}">{{ task.description }}</span>
@@ -55,9 +56,12 @@
           <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" title="Edit Task">
             <i class="fas fa-edit"></i>
           </a>
-          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger" title="Delete Task">
-            <i class="fas fa-trash-alt"></i>
-          </a>
+          <form method="POST" action="{{ url_for('todo.delete_todo', task_id=task.id) }}" onsubmit="return confirm('Delete this task?');" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn btn-sm btn-danger" title="Delete Task">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </form>
         </div>
       </li>
       {% endfor %}
@@ -74,14 +78,19 @@
       const checkbox = form.querySelector(".form-check-input");
       checkbox.addEventListener("change", (e) => {
         const listItem = form.closest(".list-group-item");
-        const taskId = listItem.dataset.taskId;
         const isChecked = e.target.checked;
         const taskDescription = listItem.querySelector(".task-description");
 
         checkbox.disabled = true;
 
-        fetch(`/todo/complete/${taskId}`)
+        const formData = new FormData(form);
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        })
           .then((response) => {
+            if (!response.ok) throw new Error("Server error");
             listItem.classList.toggle("list-group-item-success", isChecked);
             taskDescription.classList.toggle("text-decoration-line-through", isChecked);
             taskDescription.classList.toggle("text-muted", isChecked);

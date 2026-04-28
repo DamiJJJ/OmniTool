@@ -4,6 +4,7 @@
 
   <div class="card p-4 shadow-sm mb-4">
     <form method="POST" action="{{ url_for('weather.weather') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="input-group mb-3">
         <input type="text" class="form-control" placeholder="Enter city name" name="city" required />
         <button class="btn btn-primary" type="submit">Show Weather</button>
@@ -23,6 +24,7 @@
           {{ fav_loc.city_name }}
         </a>
         <form method="POST" action="{{ url_for('weather.remove_favorite_weather', location_id=fav_loc.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove from Favorites">
             <i class="fas fa-times"></i>
           </button>
@@ -39,6 +41,7 @@
       {% if current_user.is_authenticated %} {% set is_favorite = false %} {% for fav in favorite_locations %} {% if fav.city_name == current_weather_data.city
       %} {% set is_favorite = true %} {% endif %} {% endfor %} {% if not is_favorite %}
       <form method="POST" action="{{ url_for('weather.add_favorite_weather', city_name=current_weather_data.city) }}" class="mb-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-outline-success btn-sm"><i class="fas fa-star"></i> Add to Favorites</button>
       </form>
       {% endif %} {% endif %}
