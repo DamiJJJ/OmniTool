@@ -1,6 +1,9 @@
 import logging
 import os
+import re
 import requests
+
+_CURRENCY_CODE_RE = re.compile(r'^[A-Z]{3}$')
 from datetime import datetime
 from flask import (
     Blueprint,
@@ -13,7 +16,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 
-from extensions import db
+from extensions import db, limiter
 from models import CurrencyLog, FavoriteCurrencyPair
 
 logger = logging.getLogger(__name__)
@@ -63,6 +66,7 @@ def get_currency_names():
 
 @currency_bp.route("/currency", methods=["GET", "POST"])
 @login_required
+@limiter.limit("60 per minute", methods=["POST"])
 def currency_converter():
     converted_amount = None
     currencies = []
@@ -105,6 +109,8 @@ def currency_converter():
 
             if not from_currency_form or not to_currency_form:
                 flash("Please select both currencies and enter an amount.", "danger")
+            elif not _CURRENCY_CODE_RE.match(from_currency_form) or not _CURRENCY_CODE_RE.match(to_currency_form):
+                flash("Invalid currency code.", "danger")
             else:
                 url = f"https://api.exchangerate-api.com/v4/latest/{from_currency_form}"
                 response = requests.get(url, timeout=timeout)
@@ -178,6 +184,10 @@ def add_favorite_pair():
             "Both 'From' and 'To' currencies are required to add a favorite pair.",
             "danger",
         )
+        return redirect(url_for("currency.currency_converter"))
+
+    if not _CURRENCY_CODE_RE.match(from_curr) or not _CURRENCY_CODE_RE.match(to_curr):
+        flash("Invalid currency code.", "danger")
         return redirect(url_for("currency.currency_converter"))
 
     existing_favorite = FavoriteCurrencyPair.query.filter_by(

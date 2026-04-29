@@ -45,7 +45,7 @@
         <button type="submit" class="btn btn-outline-success btn-sm"><i class="fas fa-star"></i> Add to Favorites</button>
       </form>
       {% endif %} {% endif %}
-      <img src="http://openweathermap.org/img/wn/{{ current_weather_data.icon }}@2x.png" alt="{{ current_weather_data.description }}" />
+      <img src="https://openweathermap.org/img/wn/{{ current_weather_data.icon }}@2x.png" alt="{{ current_weather_data.description }}" />
       <p class="h1">{{ "%.1f"|format(current_weather_data.temperature) }}°C</p>
       <p class="h4">{{ current_weather_data.description|capitalize }}</p>
       <p>Feels like: {{ "%.1f"|format(current_weather_data.feels_like) }}°C</p>
@@ -58,7 +58,7 @@
         {% for hour in today_hourly_forecast %}
         <div class="card text-center mx-2 p-2 flex-shrink-0" style="width: 100px">
           <p class="mb-1"><strong>{{ hour.time }}</strong></p>
-          <img src="http://openweathermap.org/img/wn/{{ hour.icon }}.png" alt="{{ hour.description }}" class="mx-auto" style="width: 50px; height: 50px" />
+          <img src="https://openweathermap.org/img/wn/{{ hour.icon }}.png" alt="{{ hour.description }}" class="mx-auto" style="width: 50px; height: 50px" />
           <p class="mb-0">{{ "%.1f"|format(hour.temp) }}°C</p>
           <small>{{ hour.description }}</small>
         </div>
@@ -86,7 +86,7 @@
               </div>
               <div class="text-md-end text-start">
                 <img
-                  src="http://openweathermap.org/img/wn/{{ day_data.icon }}.png"
+                  src="https://openweathermap.org/img/wn/{{ day_data.icon }}.png"
                   alt="{{ day_data.description }}"
                   style="width: 40px; height: 40px; vertical-align: middle"
                   class="me-2"
@@ -104,7 +104,7 @@
               <div class="card text-center mx-2 p-2 flex-shrink-0" style="width: 100px">
                 <p class="mb-1"><strong>{{ hour_detail.time }}</strong></p>
                 <img
-                  src="http://openweathermap.org/img/wn/{{ hour_detail.icon }}.png"
+                  src="https://openweathermap.org/img/wn/{{ hour_detail.icon }}.png"
                   alt="{{ hour_detail.description }}"
                   class="mx-auto"
                   style="width: 50px; height: 50px"

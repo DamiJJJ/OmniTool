@@ -1,4 +1,6 @@
+import io
 import os
+
 from flask import (
     Blueprint,
     render_template,
@@ -13,7 +15,23 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, SelectField, SubmitField
 from wtforms.validators import DataRequired
 from PIL import Image
-import io
+
+Image.MAX_IMAGE_PIXELS = 50_000_000
+
+_MAGIC_CHECKS = [
+    (lambda h: h[:3] == b'\xff\xd8\xff'),
+    (lambda h: h[:8] == b'\x89PNG\r\n\x1a\n'),
+    (lambda h: h[:6] in (b'GIF87a', b'GIF89a')),
+    (lambda h: h[:2] == b'BM'),
+    (lambda h: h[:4] in (b'II*\x00', b'MM\x00*')),
+    (lambda h: h[:4] == b'RIFF' and h[8:12] == b'WEBP'),
+]
+
+
+def _is_valid_image(stream: io.BytesIO) -> bool:
+    header = stream.read(12)
+    stream.seek(0)
+    return any(check(header) for check in _MAGIC_CHECKS)
 
 conversion_bp = Blueprint("conversion", __name__, template_folder="../templates")
 
@@ -82,6 +100,12 @@ def image_conversion():
 
             try:
                 image_stream = io.BytesIO(file.read())
+                if not _is_valid_image(image_stream):
+                    flash("Uploaded file is not a recognised image format.", "danger")
+                    return redirect(url_for("conversion.image_conversion"))
+                img = Image.open(image_stream)
+                img.verify()
+                image_stream.seek(0)
                 img = Image.open(image_stream)
 
                 pil_format = target_format

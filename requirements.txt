@@ -30,5 +30,5 @@ python-dotenv==1.0.0
 # Production Server
 gunicorn==21.2.0
 
-# Rate Limiting (will be added in optimization)
-# Flask-Limiter==3.5.0
+# Rate Limiting
+Flask-Limiter==3.5.0

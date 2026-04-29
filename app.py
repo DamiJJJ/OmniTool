@@ -8,11 +8,10 @@ from flask import (
     request,
     session,
     jsonify,
-    make_response,
 )
 
 from config import config
-from extensions import db, migrate, login_manager, csrf
+from extensions import db, migrate, login_manager, csrf, limiter
 from utils import format_date
 
 
@@ -39,6 +38,7 @@ def create_app(config_name=None):
     login_manager.login_view = "auth.login"
     login_manager.login_message_category = "info"
     csrf.init_app(app)
+    limiter.init_app(app)
 
     from models import User
 
@@ -63,8 +63,25 @@ def create_app(config_name=None):
 
     @app.before_request
     def before_request():
-        if "theme" in request.cookies:
-            session["theme"] = request.cookies.get("theme")
+        theme = request.cookies.get("theme")
+        if theme in ("dark", "light"):
+            session["theme"] = theme
+
+    @app.after_request
+    def set_security_headers(response):
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+            "font-src 'self' https://cdnjs.cloudflare.com; "
+            "img-src 'self' data: https: blob:; "
+            "frame-src https://www.youtube.com; "
+            "connect-src 'self';"
+        )
+        return response
 
     @app.route("/set-theme", methods=["POST"])
     def set_theme():
@@ -84,14 +101,6 @@ def create_app(config_name=None):
 
     @app.route("/")
     def index():
-        if "set_lang" in request.args:
-            lang = request.args["set_lang"]
-            response = make_response(redirect(url_for("index")))
-            if lang == "pl":
-                response.set_cookie("googtrans", "/en/pl", max_age=30 * 24 * 60 * 60)
-            elif lang == "en":
-                response.set_cookie("googtrans", "/en/en", max_age=30 * 24 * 60 * 60)
-            return response
         return render_template("index.html")
 
     @app.route("/health")
