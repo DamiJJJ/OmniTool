@@ -1,45 +1,45 @@
 document.addEventListener("DOMContentLoaded", function () {
   const themeSwitch = document.getElementById("theme-switch");
-  const body = document.body;
-  const themeIcon = document.getElementById("theme-icon");
+  const html = document.documentElement;
+  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
 
-  function setThemeAndIcon(theme) {
-    if (theme === "dark") {
-      body.classList.add("dark-mode");
-      themeSwitch.checked = true;
-      localStorage.setItem("theme", "dark");
-      if (themeIcon) {
-        themeIcon.classList.remove("fa-sun");
-        themeIcon.classList.add("fa-moon");
-      }
-    } else {
-      body.classList.remove("dark-mode");
-      themeSwitch.checked = false;
-      localStorage.setItem("theme", "light");
-      if (themeIcon) {
-        themeIcon.classList.remove("fa-moon");
-        themeIcon.classList.add("fa-sun");
-      }
-    }
+  function applyTheme(theme) {
+    html.setAttribute("data-theme", theme);
+    if (themeSwitch) themeSwitch.checked = theme === "dark";
+    localStorage.setItem("theme", theme);
   }
 
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme) {
-    setThemeAndIcon(savedTheme);
-  } else if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
-    setThemeAndIcon("dark");
+  function persistTheme(theme) {
+    if (!csrfMeta) return;
+    fetch("/set-theme", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfMeta.content,
+      },
+      body: JSON.stringify({ theme }),
+    }).catch(() => {});
+  }
+
+  const saved = localStorage.getItem("theme");
+  const serverTheme = html.getAttribute("data-theme");
+  let initial;
+  if (saved === "dark" || saved === "light") {
+    initial = saved;
+  } else if (serverTheme === "dark" || serverTheme === "light") {
+    initial = serverTheme;
+  } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    initial = "dark";
   } else {
-    setThemeAndIcon("light");
+    initial = "light";
   }
+  applyTheme(initial);
 
-  themeSwitch.addEventListener("change", function () {
-    if (themeSwitch.checked) {
-      setThemeAndIcon("dark");
-    } else {
-      setThemeAndIcon("light");
-    }
-  });
+  if (themeSwitch) {
+    themeSwitch.addEventListener("change", function () {
+      const theme = this.checked ? "dark" : "light";
+      applyTheme(theme);
+      persistTheme(theme);
+    });
+  }
 });

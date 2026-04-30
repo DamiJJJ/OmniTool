@@ -1,74 +1,82 @@
-{% extends "base.html" %} {% block content %}
-<div class="container mt-5">
-  {% if video_id %} {# Section for playing a single video #}
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-8">
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="embed-responsive embed-responsive-16by9">
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-7xl mx-auto py-4 animate-fade-in-up">
+  {% if video_id %}
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-12">
+      <div class="card bg-base-200 shadow-xl border border-base-300">
+        <div class="card-body p-3 sm:p-6">
+          <div class="aspect-video w-full rounded-xl overflow-hidden bg-black">
             <iframe
-              class="embed-responsive-item w-100"
-              style="height: 500px"
+              class="w-full h-full"
               src="https://www.youtube.com/embed/{{ video_id }}?rel=0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
-            >
-            </iframe>
+            ></iframe>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  {# Section for displaying video statistics #} {% if video_stats %}
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-8">
-      <div class="card shadow-sm mb-4">
+    {% if video_stats %}
+    <div class="lg:col-span-12">
+      <div class="card bg-base-200 shadow-xl border border-base-300">
         <div class="card-body">
-          <h3 class="card-title">{{ video_stats.title }}</h3>
-          <p class="card-text text-muted mb-2">Published: {{ video_stats.published_at | date }}</p>
-          <div class="d-flex justify-content-between text-center">
-            <div class="p-2">
-              <i class="fas fa-eye text-primary me-1"></i>
-              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.view_count) }}</span>
-              <small class="text-muted d-block">Views</small>
+          <h3 class="card-title text-xl sm:text-2xl">{{ video_stats.title }}</h3>
+          <p class="opacity-70 text-sm">Published: {{ video_stats.published_at | date }}</p>
+          <div class="grid grid-cols-3 gap-2 mt-3">
+            <div class="stat bg-base-100 rounded-box border border-base-300 p-3">
+              <div class="stat-figure text-primary"><i class="fas fa-eye text-2xl"></i></div>
+              <div class="stat-title text-xs">Views</div>
+              <div class="stat-value text-base sm:text-2xl">{{ "{:,.0f}".format(video_stats.view_count) }}</div>
             </div>
-            <div class="p-2">
-              <i class="fas fa-thumbs-up text-success me-1"></i>
-              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.like_count) }}</span>
-              <small class="text-muted d-block">Likes</small>
+            <div class="stat bg-base-100 rounded-box border border-base-300 p-3">
+              <div class="stat-figure text-success"><i class="fas fa-thumbs-up text-2xl"></i></div>
+              <div class="stat-title text-xs">Likes</div>
+              <div class="stat-value text-base sm:text-2xl">{{ "{:,.0f}".format(video_stats.like_count) }}</div>
             </div>
-            <div class="p-2">
-              <i class="fas fa-comment text-info me-1"></i>
-              <span class="fw-bold">{{ "{:,.0f}".format(video_stats.comment_count) }}</span>
-              <small class="text-muted d-block">Comments</small>
+            <div class="stat bg-base-100 rounded-box border border-base-300 p-3">
+              <div class="stat-figure text-info"><i class="fas fa-comment text-2xl"></i></div>
+              <div class="stat-title text-xs">Comments</div>
+              <div class="stat-value text-base sm:text-2xl">{{ "{:,.0f}".format(video_stats.comment_count) }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
-  {% endif %}
 
-  <div class="text-center mt-3">
-    <a href="{{ url_for('youtube.latest_videos') }}" class="btn btn-secondary mt-3">Back to video list</a>
+  <div class="text-center mt-6">
+    <a href="{{ url_for('youtube.latest_videos') }}" class="btn btn-ghost gap-2">
+      <i class="fas fa-arrow-left"></i> Back to video list
+    </a>
   </div>
-  {% else %} {# Section for displaying a list of videos #}
-  <h1 class="mb-4 text-center">Latest YouTube Videos from Dami</h1>
+
+  {% else %}
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">
+    <i class="fab fa-youtube text-red-500 mr-2"></i> Latest YouTube Videos from Dami
+  </h1>
 
   {% if error %}
-  <div class="alert alert-danger" role="alert">{{ error }}</div>
+  <div class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i><span>{{ error }}</span>
+  </div>
   {% elif videos %}
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="video-container">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="video-container">
     {% for video in videos %}
-    <div class="col">
-      <div class="card h-100 shadow-sm">
-        <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}">
-          <img src="{{ video.thumbnail_url }}" class="card-img-top" alt="{{ video.title }}" />
-        </a>
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-truncate">{{ video.title }}</h5>
-          <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}" class="btn btn-primary mt-auto">Watch in OmniTool</a>
+    <div class="card bg-base-200 shadow-md border border-base-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+      <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}">
+        <figure class="aspect-video overflow-hidden">
+          <img src="{{ video.thumbnail_url }}" class="w-full h-full object-cover" alt="{{ video.title }}" />
+        </figure>
+      </a>
+      <div class="card-body p-4">
+        <h5 class="card-title text-base line-clamp-2">{{ video.title }}</h5>
+        <div class="card-actions justify-end mt-2">
+          <a href="{{ url_for('youtube.latest_videos', video_id=video.video_id) }}" class="btn btn-primary btn-sm gap-2">
+            <i class="fas fa-play"></i> Watch
+          </a>
         </div>
       </div>
     </div>
@@ -76,17 +84,19 @@
   </div>
 
   {% if next_page_token %}
-  <div id="loader" class="text-center my-4" data-next-page-token="{{ next_page_token }}">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="text-muted">Loading more videos...</p>
+  <div id="loader" class="text-center my-6" data-next-page-token="{{ next_page_token }}">
+    <span class="loading loading-spinner loading-lg text-primary"></span>
+    <p class="opacity-70 mt-2">Loading more videos...</p>
   </div>
-  {% endif %} {% else %}
-  <p class="text-center">No videos found. Make sure your channel ID is correct or that the channel contains public videos.</p>
-  {% endif %} {% endif %}
+  {% endif %}
+  {% else %}
+  <p class="text-center opacity-70">No videos found. Make sure your channel ID is correct or that the channel contains public videos.</p>
+  {% endif %}
+  {% endif %}
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const videoContainer = document.getElementById("video-container");
@@ -94,9 +104,7 @@
     let isLoading = false;
     let nextPageToken = loader ? loader.dataset.nextPageToken : null;
 
-    if (!loader) {
-      return;
-    }
+    if (!loader) return;
 
     const fetchVideos = async (pageToken) => {
       if (isLoading || !pageToken) return;
@@ -105,59 +113,51 @@
 
       try {
         const response = await fetch(`/youtube/load_more?page_token=${pageToken}`);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+        if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
 
         if (data.videos.length > 0) {
           data.videos.forEach((video) => {
-            const colDiv = document.createElement("div");
-            colDiv.classList.add("col");
-
-            const cardHtml = `
-                            <div class="card h-100 shadow-sm">
-                                <a href="/youtube?video_id=${video.video_id}">
-                                    <img src="${video.thumbnail_url}" class="card-img-top" alt="${video.title}">
-                                </a>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title text-truncate">${video.title}</h5>
-                                    <a href="/youtube?video_id=${video.video_id}" class="btn btn-primary mt-auto">Watch in OmniTool</a>
-                                </div>
-                            </div>
-                        `;
-            colDiv.innerHTML = cardHtml;
-            videoContainer.appendChild(colDiv);
+            const cardDiv = document.createElement("div");
+            cardDiv.className = "card bg-base-200 shadow-md border border-base-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden";
+            cardDiv.innerHTML = `
+              <a href="/youtube?video_id=${video.video_id}">
+                <figure class="aspect-video overflow-hidden">
+                  <img src="${video.thumbnail_url}" class="w-full h-full object-cover" alt="${video.title}">
+                </figure>
+              </a>
+              <div class="card-body p-4">
+                <h5 class="card-title text-base line-clamp-2">${video.title}</h5>
+                <div class="card-actions justify-end mt-2">
+                  <a href="/youtube?video_id=${video.video_id}" class="btn btn-primary btn-sm gap-2">
+                    <i class="fas fa-play"></i> Watch
+                  </a>
+                </div>
+              </div>
+            `;
+            videoContainer.appendChild(cardDiv);
           });
         }
 
         nextPageToken = data.next_page_token;
-        if (!nextPageToken) {
-          loader.style.display = "none";
-        }
+        if (!nextPageToken) loader.style.display = "none";
       } catch (error) {
         console.error("Failed to fetch more videos:", error);
         loader.style.display = "none";
       } finally {
         isLoading = false;
-        if (nextPageToken) {
-          loader.dataset.nextPageToken = nextPageToken;
-        }
+        if (nextPageToken) loader.dataset.nextPageToken = nextPageToken;
       }
     };
 
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-        if (!isLoading && nextPageToken) {
-          fetchVideos(nextPageToken);
-        }
+        if (!isLoading && nextPageToken) fetchVideos(nextPageToken);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-
     handleScroll();
   });
 </script>
-
 {% endblock %}

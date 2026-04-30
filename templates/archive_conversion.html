@@ -1,14 +1,22 @@
-{% extends "base.html" %} {% block title %}Archive Tools{% endblock %} {% block content %}
-<div class="container mt-4">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Archive Tools</li>
-    </ol>
-  </nav>
-  <h1 class="mb-4 text-center text-muted">Archive Tools (Under Development)</h1>
-  <div class="alert alert-info text-center">
-    This module is currently being implemented. Soon you will be able to compress and decompress popular archive formats (ZIP, RAR, 7Z).
+{% extends "base.html" %}
+{% block title %}Archive Tools{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+  <div class="text-sm breadcrumbs mb-2">
+    <ul>
+      <li><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
+      <li class="opacity-70">Archive Tools</li>
+    </ul>
+  </div>
+
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 opacity-70">
+    <i class="fas fa-file-archive mr-2"></i> Archive Tools
+    <span class="badge badge-warning badge-lg align-middle ml-2">Under Development</span>
+  </h1>
+
+  <div class="alert alert-info shadow-lg">
+    <i class="fas fa-info-circle text-xl"></i>
+    <span>This module is currently being implemented. Soon you will be able to compress and decompress popular archive formats (ZIP, RAR, 7Z).</span>
   </div>
 </div>
 {% endblock %}

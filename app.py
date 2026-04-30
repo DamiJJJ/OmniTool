@@ -74,9 +74,9 @@ def create_app(config_name=None):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
-            "font-src 'self' https://cdnjs.cloudflare.com; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
+            "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
             "img-src 'self' data: https: blob:; "
             "frame-src https://www.youtube.com; "
             "connect-src 'self';"
@@ -110,7 +110,10 @@ def create_app(config_name=None):
     @app.context_processor
     def inject_theme():
         theme_setting = session.get("theme", "light")
-        return dict(current_theme_class=f"{theme_setting}-mode")
+        return dict(
+            current_theme_class=f"{theme_setting}-mode",
+            current_theme=theme_setting,
+        )
 
     return app
 
