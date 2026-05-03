@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}DOCX → PDF{% endblock %}
+{% block content %}
+  {% set title = "DOCX → PDF" %}
+  {% set icon_class = "fa-file-export" %}
+  {% set color_class = "text-warning" %}
+  {% set breadcrumb_label = "DOCX → PDF" %}
+  {% set action_url = url_for('conversion.docx_to_pdf') %}
+  {% set accept = ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" %}
+  {% set help_text = "We extract text via <strong>python-docx</strong> and render PDF with <strong>reportlab</strong> in-memory. Complex formatting (images, tables styling) is not preserved." %}
+  {% include "_doc_single_file_form.html" %}
+{% endblock %}

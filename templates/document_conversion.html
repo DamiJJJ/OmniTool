@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Document & PDF Tools{% endblock %}
 {% block content %}
-<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+<div class="max-w-6xl mx-auto py-4 animate-fade-in-up">
   <div class="text-sm breadcrumbs mb-2">
     <ul>
       <li><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
@@ -9,16 +9,41 @@
     </ul>
   </div>
 
-  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6 opacity-70">
-    <i class="fas fa-file-pdf mr-2"></i> Document & PDF Tools
-    <span class="badge badge-warning badge-lg align-middle ml-2">Under Development</span>
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8">
+    <i class="fas fa-file-pdf text-primary mr-2"></i> Document & PDF Tools
   </h1>
 
-  <div class="alert alert-info shadow-lg">
-    <i class="fas fa-info-circle text-xl"></i>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+    {% set tools = [
+      ('conversion.merge_pdf', 'Merge PDFs', 'Combine multiple PDF files into a single document.', 'fa-object-group', 'text-primary'),
+      ('conversion.split_pdf', 'Split PDF', 'Extract specific pages or page ranges into a new PDF.', 'fa-scissors', 'text-secondary'),
+      ('conversion.pdf_to_text', 'PDF → TXT', 'Extract plain text content from a PDF document.', 'fa-file-lines', 'text-info'),
+      ('conversion.docx_to_text', 'DOCX → TXT', 'Convert Word (.docx) files to plain text.', 'fa-file-word', 'text-success'),
+      ('conversion.docx_to_pdf', 'DOCX → PDF', 'Render Word (.docx) content as a clean PDF.', 'fa-file-export', 'text-warning'),
+      ('conversion.text_to_pdf', 'TXT → PDF', 'Generate a paginated PDF from a plain text file.', 'fa-file-pdf', 'text-error'),
+    ] %}
+
+    {% for endpoint, title, desc, icon, color in tools %}
+    <a href="{{ url_for(endpoint) }}" class="group block animate-fade-in-up" style="animation-delay: {{ loop.index0 * 0.05 }}s">
+      <div class="card h-full bg-base-200 border border-base-300 hover:border-primary/50 shadow-md hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-1">
+        <div class="card-body items-center text-center">
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 grid place-items-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas {{ icon }} text-3xl {{ color }}"></i>
+          </div>
+          <h5 class="card-title">{{ title }}</h5>
+          <p class="opacity-70 text-sm">{{ desc }}</p>
+          <span class="badge badge-success mt-2">Active</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="alert alert-info shadow-lg mt-8">
+    <i class="fas fa-shield-halved text-xl"></i>
     <span>
-      This module is currently being implemented. Soon you will be able to convert DOCX, TXT, CSV files,
-      and perform essential PDF operations like merging and splitting.
+      All conversions run <strong>in-memory</strong> — your files are never stored on the server.
+      Max upload size: <strong>10&nbsp;MB</strong> per file.
     </span>
   </div>
 </div>

@@ -24,6 +24,11 @@ email-validator==2.1.0
 # Image Processing
 Pillow==10.4.0
 
+# Document & PDF Processing
+pypdf==4.3.1
+python-docx==1.1.2
+reportlab==4.2.2
+
 # Environment Variables
 python-dotenv==1.0.0
 

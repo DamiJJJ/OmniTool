@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}PDF → TXT{% endblock %}
+{% block content %}
+  {% set title = "PDF → TXT" %}
+  {% set icon_class = "fa-file-lines" %}
+  {% set color_class = "text-info" %}
+  {% set breadcrumb_label = "PDF → TXT" %}
+  {% set action_url = url_for('conversion.pdf_to_text') %}
+  {% set accept = "application/pdf" %}
+  {% set help_text = "We use <strong>pypdf</strong> to extract text in-memory. Files are not stored on the server." %}
+  {% include "_doc_single_file_form.html" %}
+{% endblock %}

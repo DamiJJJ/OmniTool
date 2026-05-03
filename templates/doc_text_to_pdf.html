@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}TXT → PDF{% endblock %}
+{% block content %}
+  {% set title = "TXT → PDF" %}
+  {% set icon_class = "fa-file-pdf" %}
+  {% set color_class = "text-error" %}
+  {% set breadcrumb_label = "TXT → PDF" %}
+  {% set action_url = url_for('conversion.text_to_pdf') %}
+  {% set accept = ".txt,text/plain" %}
+  {% set help_text = "We render plain text into a paginated PDF using <strong>reportlab</strong>. Files are not stored on the server." %}
+  {% include "_doc_single_file_form.html" %}
+{% endblock %}

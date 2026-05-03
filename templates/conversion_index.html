@@ -20,18 +20,18 @@
       </div>
     </a>
 
-    <div class="block animate-fade-in-up" style="animation-delay: 0.1s">
-      <div class="card h-full bg-base-200 border border-base-300 opacity-70 cursor-not-allowed">
+    <a href="{{ url_for('conversion.document_conversion') }}" class="group block animate-fade-in-up" style="animation-delay: 0.1s">
+      <div class="card h-full bg-base-200 border border-base-300 hover:border-primary/50 shadow-md hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-1">
         <div class="card-body items-center text-center">
-          <div class="w-16 h-16 rounded-2xl bg-base-300 grid place-items-center mb-2">
-            <i class="fas fa-file-pdf text-3xl opacity-60"></i>
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 grid place-items-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-file-pdf text-3xl text-primary"></i>
           </div>
           <h5 class="card-title">Document & PDF Tools</h5>
-          <p class="opacity-70 text-sm">Convert DOCX, TXT, CSV and manage PDF files (merge, split, to/from PDF).</p>
-          <span class="badge badge-warning mt-2">Coming Soon</span>
+          <p class="opacity-70 text-sm">Merge, split and convert PDF, DOCX and TXT files.</p>
+          <span class="badge badge-success mt-2">Active</span>
         </div>
       </div>
-    </div>
+    </a>
 
     <div class="block animate-fade-in-up" style="animation-delay: 0.15s">
       <div class="card h-full bg-base-200 border border-base-300 opacity-70 cursor-not-allowed">
