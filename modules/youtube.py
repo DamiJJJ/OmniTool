@@ -1,6 +1,11 @@
 import os
+import re
+
 from flask import Blueprint, render_template, request, flash, jsonify
 import requests
+
+_VIDEO_ID_RE = re.compile(r'^[A-Za-z0-9_-]{11}$')
+_PAGE_TOKEN_RE = re.compile(r'^[A-Za-z0-9_\-=]+$')
 
 youtube_bp = Blueprint("youtube", __name__, url_prefix="/youtube")
 
@@ -18,11 +23,15 @@ def latest_videos():
         flash(error, "danger")
         return render_template("youtube.html", videos=[], error=error)
 
+    if video_id and not _VIDEO_ID_RE.match(video_id):
+        flash("Invalid video ID.", "danger")
+        return render_template("youtube.html", videos=[], error="Invalid video ID.")
+
     if video_id:
         video_stats = {}
         try:
             stats_url = f"https://www.googleapis.com/youtube/v3/videos?key={YOUTUBE_API_KEY}&id={video_id}&part=snippet,statistics"
-            stats_response = requests.get(stats_url)
+            stats_response = requests.get(stats_url, timeout=(5, 10))
             stats_response.raise_for_status()
             stats_data = stats_response.json()
 
@@ -54,7 +63,7 @@ def latest_videos():
 
     try:
         url = f"https://www.googleapis.com/youtube/v3/search?key={YOUTUBE_API_KEY}&channelId={channel_id}&part=snippet,id&order=date&maxResults=10"
-        response = requests.get(url)
+        response = requests.get(url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
 
@@ -100,9 +109,12 @@ def load_more_videos():
             400,
         )
 
+    if not _PAGE_TOKEN_RE.match(page_token):
+        return jsonify({"videos": [], "next_page_token": None, "error": "Invalid page token."}), 400
+
     try:
         url = f"https://www.googleapis.com/youtube/v3/search?key={YOUTUBE_API_KEY}&channelId={channel_id}&part=snippet,id&order=date&maxResults=10&pageToken={page_token}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
 

@@ -1,95 +1,97 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_login import login_required, current_user
-from datetime import datetime
-from extensions import db
-import requests
+import logging
 import os
+import re
+import requests
+
+_CURRENCY_CODE_RE = re.compile(r'^[A-Z]{3}$')
+from datetime import datetime
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    flash,
+    redirect,
+    url_for,
+    current_app,
+)
+from flask_login import login_required, current_user
+
+from extensions import db, limiter
 from models import CurrencyLog, FavoriteCurrencyPair
+
+logger = logging.getLogger(__name__)
 
 currency_bp = Blueprint("currency", __name__, template_folder="../templates")
 
 CURRENCY_API_KEY = os.environ.get("CURRENCY_API_KEY")
 if not CURRENCY_API_KEY:
-    flash(
-        "ERROR: NO CURRENCY_API_KEY VARIABLE. Please set it in your .env file.",
-        "danger",
-    )
-    print(
-        "ERROR: NO CURRENCY_API_KEY VARIABLE. Check .env file or environment configuration."
+    logger.error(
+        "CURRENCY_API_KEY is not set. Check .env file or environment configuration."
     )
 
-# --- Currency names dictionary ---
-CURRENCY_NAMES = {}
+# Cache w pamięci (lazy loading)
+_CURRENCY_NAMES_CACHE = {}
+_CURRENCY_NAMES_LOADED = False
 
 
-def load_currency_names():
-    global CURRENCY_NAMES
-    if not CURRENCY_API_KEY:
-        print("API key not set, cannot load currency names from API.")
-        return
+def get_currency_names():
+    """Lazy loader nazw walut z cache w pamięci."""
+    global _CURRENCY_NAMES_CACHE, _CURRENCY_NAMES_LOADED
 
-    codes_url = f"https://v6.exchangerate-api.com/v6/{CURRENCY_API_KEY}/codes"
+    if _CURRENCY_NAMES_LOADED or not CURRENCY_API_KEY:
+        return _CURRENCY_NAMES_CACHE
+
     try:
-        response = requests.get(codes_url)
+        timeout = current_app.config.get("REQUESTS_TIMEOUT", (5, 10))
+        codes_url = f"https://v6.exchangerate-api.com/v6/{CURRENCY_API_KEY}/codes"
+        response = requests.get(codes_url, timeout=timeout)
         response.raise_for_status()
         data = response.json()
 
-        if data and data.get("result") == "success" and "supported_codes" in data:
-            CURRENCY_NAMES = {code: name for code, name in data["supported_codes"]}
-            print("Successfully loaded currency names from API.")
+        if data.get("result") == "success" and "supported_codes" in data:
+            _CURRENCY_NAMES_CACHE = {
+                code: name for code, name in data["supported_codes"]
+            }
+            _CURRENCY_NAMES_LOADED = True
+            logger.info("Successfully loaded currency names from API.")
         else:
-            flash(
-                "Failed to load currency names from API: Invalid response format.",
-                "warning",
-            )
-            print(f"Error loading currency names: Unexpected API response: {data}")
+            logger.warning("Unexpected currency API response: %s", data)
     except requests.exceptions.RequestException as e:
-        flash(
-            f"Failed to load currency names from API: {e}. Check API key or internet connection.",
-            "danger",
-        )
-        print(f"Error fetching currency codes: {e}")
-    except Exception as e:
-        flash(
-            f"An unexpected error occurred while loading currency names: {e}", "danger"
-        )
-        print(f"General error in loading currency names: {e}")
+        logger.error("Error fetching currency codes: %s", e)
+    except Exception:
+        logger.exception("General error in loading currency names")
 
-
-load_currency_names()
+    return _CURRENCY_NAMES_CACHE
 
 
 @currency_bp.route("/currency", methods=["GET", "POST"])
 @login_required
+@limiter.limit("60 per minute", methods=["POST"])
 def currency_converter():
     converted_amount = None
     currencies = []
     currency_logs = []
     favorite_currency_pairs = []
+    timeout = current_app.config.get("REQUESTS_TIMEOUT", (5, 10))
 
-    # Initialize variables that will be passed to template
     from_currency_selected = None
     to_currency_selected = None
     amount_entered = None
 
-    # Fetch favorite pairs at the start for all paths
     if current_user.is_authenticated:
         favorite_currency_pairs = FavoriteCurrencyPair.query.filter_by(
             user_id=current_user.id
         ).all()
 
     try:
-        symbols_url = f"https://api.exchangerate-api.com/v4/latest/USD"
-        response = requests.get(symbols_url)
-        response.raise_for_status()  # Wyrzuci błąd dla odpowiedzi 4xx/5xx
+        symbols_url = "https://api.exchangerate-api.com/v4/latest/USD"
+        response = requests.get(symbols_url, timeout=timeout)
+        response.raise_for_status()
         data = response.json()
         currencies = sorted(data["rates"].keys())
     except requests.exceptions.RequestException as e:
-        flash(
-            f"Failed to load currency list: {e}. Check API key or internet connection.",
-            "danger",
-        )
-        print(f"Error fetching currency symbols for dropdown: {e}")
+        flash(f"Failed to load currency list: {e}.", "danger")
+        logger.error("Error fetching currency symbols for dropdown: %s", e)
 
     if request.method == "POST":
         from_currency_form = request.form.get("from_currency")
@@ -107,9 +109,11 @@ def currency_converter():
 
             if not from_currency_form or not to_currency_form:
                 flash("Please select both currencies and enter an amount.", "danger")
+            elif not _CURRENCY_CODE_RE.match(from_currency_form) or not _CURRENCY_CODE_RE.match(to_currency_form):
+                flash("Invalid currency code.", "danger")
             else:
                 url = f"https://api.exchangerate-api.com/v4/latest/{from_currency_form}"
-                response = requests.get(url)
+                response = requests.get(url, timeout=timeout)
                 response.raise_for_status()
                 data = response.json()
 
@@ -137,22 +141,16 @@ def currency_converter():
         except (ValueError, TypeError):
             flash("Invalid amount. Please enter a positive number.", "danger")
         except requests.exceptions.RequestException as e:
-            flash(
-                f"Currency API connection error: {e}. Check API key or internet connection.",
-                "danger",
-            )
-            print(f"Error fetching exchange rate: {e}")
+            flash(f"Currency API connection error: {e}.", "danger")
+            logger.error("Error fetching exchange rate: %s", e)
         except Exception as e:
             flash(f"An error occurred while converting: {e}", "danger")
-            print(f"General error in currency conversion: {e}")
+            logger.exception("General error in currency conversion")
 
     elif request.method == "GET":
-        if request.args.get("from_currency"):
-            from_currency_selected = request.args.get("from_currency")
-        if request.args.get("to_currency"):
-            to_currency_selected = request.args.get("to_currency")
-        if request.args.get("amount"):
-            amount_entered = request.args.get("amount")
+        from_currency_selected = request.args.get("from_currency")
+        to_currency_selected = request.args.get("to_currency")
+        amount_entered = request.args.get("amount")
 
     if current_user.is_authenticated:
         currency_logs = (
@@ -171,11 +169,8 @@ def currency_converter():
         to_currency=to_currency_selected,
         amount=amount_entered,
         favorite_currency_pairs=favorite_currency_pairs,
-        currency_names=CURRENCY_NAMES,
+        currency_names=get_currency_names(),
     )
-
-
-# --- Favorite currency pairs ---
 
 
 @currency_bp.route("/currency/add_favorite_pair", methods=["POST"])
@@ -189,6 +184,10 @@ def add_favorite_pair():
             "Both 'From' and 'To' currencies are required to add a favorite pair.",
             "danger",
         )
+        return redirect(url_for("currency.currency_converter"))
+
+    if not _CURRENCY_CODE_RE.match(from_curr) or not _CURRENCY_CODE_RE.match(to_curr):
+        flash("Invalid currency code.", "danger")
         return redirect(url_for("currency.currency_converter"))
 
     existing_favorite = FavoriteCurrencyPair.query.filter_by(
@@ -206,9 +205,8 @@ def add_favorite_pair():
             db.session.commit()
             flash(f"'{from_curr} to {to_curr}' added to favorite pairs!", "success")
         except Exception as e:
-            flash(
-                f"Error adding '{from_curr} to {to_curr}' to favorites: {e}", "danger"
-            )
+            logger.exception("Error adding favorite currency pair")
+            flash(f"Error adding favorite pair: {e}", "danger")
             db.session.rollback()
 
     return redirect(
@@ -221,7 +219,7 @@ def add_favorite_pair():
 @currency_bp.route("/currency/remove_favorite_pair/<int:pair_id>", methods=["POST"])
 @login_required
 def remove_favorite_pair(pair_id):
-    favorite_pair = FavoriteCurrencyPair.query.get_or_404(pair_id)
+    favorite_pair = db.get_or_404(FavoriteCurrencyPair, pair_id)
 
     if favorite_pair.user_id != current_user.id:
         flash("You are not authorized to remove this favorite pair.", "danger")
@@ -235,6 +233,7 @@ def remove_favorite_pair(pair_id):
             "success",
         )
     except Exception as e:
+        logger.exception("Error removing favorite pair")
         flash(f"Error removing favorite pair: {e}", "danger")
         db.session.rollback()
 

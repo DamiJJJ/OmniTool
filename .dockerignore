@@ -1,0 +1,31 @@
+# Kontrola wersji / CI
+.git
+.github
+.gitignore
+
+# Edytor / narzędzia
+.vscode
+.claude
+.prettierignore
+
+# Wirtualne środowiska i cache Pythona
+venv
+env
+ENV
+.venv
+__pycache__
+**/__pycache__
+*.py[cod]
+
+# Sekrety i lokalna baza (NIE trafiają do obrazu)
+.env
+.env.*
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Dokumentacja i pliki systemowe
+*.md
+.DS_Store
+Thumbs.db

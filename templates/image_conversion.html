@@ -1,64 +1,64 @@
-{% extends "base.html" %} {% block title %}Image Conversion{% endblock %} {% block content %}
-<div class="container mt-4">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Image Conversion</li>
-    </ol>
-  </nav>
-  <h1 class="mb-4 text-center">Image Conversion Tool</h1>
-
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
-  <div class="mt-3">
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
+{% extends "base.html" %}
+{% block title %}Image Conversion{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+  <div class="text-sm breadcrumbs mb-2">
+    <ul>
+      <li><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
+      <li class="opacity-70">Image Conversion</li>
+    </ul>
   </div>
-  {% endif %} {% endwith %}
 
-  <div class="card p-4 shadow-sm mb-4">
-    <form id="conversion-form" method="POST" action="{{ url_for('conversion.image_conversion') }}" enctype="multipart/form-data">
-      {{ form.csrf_token }}
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">
+    <i class="fas fa-image text-primary mr-2"></i> Image Conversion Tool
+  </h1>
 
-      <div class="row mb-4 g-3">
-        <!-- 'Convert From' Field -->
-        <div class="col-md-6">
-          <label for="source_format" class="form-label">Convert From</label>
-          {{ form.source_format(class="form-select") }} {% for error in form.source_format.errors %}
-          <span class="text-danger">{{ error }}</span>
-          {% endfor %}
+  <div class="card bg-base-200 shadow-xl border border-base-300">
+    <div class="card-body">
+      <form id="conversion-form" method="POST" action="{{ url_for('conversion.image_conversion') }}" enctype="multipart/form-data" class="space-y-4">
+        {{ form.csrf_token }}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="source_format" class="label"><span class="label-text font-medium">Convert From</span></label>
+            {{ form.source_format(class="select select-bordered w-full") }}
+            {% for error in form.source_format.errors %}<span class="text-error text-xs">{{ error }}</span>{% endfor %}
+          </div>
+          <div>
+            <label for="target_format" class="label"><span class="label-text font-medium">Convert To</span></label>
+            {{ form.target_format(class="select select-bordered w-full") }}
+            {% for error in form.target_format.errors %}<span class="text-error text-xs">{{ error }}</span>{% endfor %}
+          </div>
         </div>
-        <!-- 'Convert To' Field -->
-        <div class="col-md-6">
-          <label for="target_format" class="form-label">Convert To</label>
-          {{ form.target_format(class="form-select") }} {% for error in form.target_format.errors %}
-          <span class="text-danger">{{ error }}</span>
-          {% endfor %}
+
+        <div
+          id="drop-area"
+          class="border-2 border-dashed border-base-300 rounded-2xl p-8 sm:p-10 text-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5"
+        >
+          <i class="fas fa-cloud-upload-alt text-5xl mb-3 opacity-60"></i>
+          <p class="opacity-70">Drag & drop your image here, or <span class="text-primary font-medium">click to select a file</span>.</p>
+          {{ form.file(class="hidden", accept="image/*") }}
+          {% for error in form.file.errors %}<span class="text-error text-xs">{{ error }}</span>{% endfor %}
         </div>
+
+        <div id="file-name-display" class="alert alert-info hidden">
+          <i class="fas fa-file"></i>
+          <span>Selected file: <strong></strong></span>
+        </div>
+
+        {{ form.submit(class="btn btn-primary w-full gap-2", id="convert-submit-btn") }}
+      </form>
+
+      <div class="text-center text-sm opacity-70 mt-4 space-y-1">
+        <p>We use the <strong>Pillow</strong> library for fast and secure in-memory conversion. Files are not stored on the server.</p>
+        <p class="text-xs">Max file size: 10MB.</p>
       </div>
-
-      <!-- Drag & Drop Area -->
-      <div id="drop-area" class="mb-4 border border-2 border-dashed rounded p-5 text-center transition-color cursor-pointer">
-        <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
-        <p class="mb-0 text-muted">Drag & drop your image here, or click to select a file.</p>
-        {{ form.file(class="d-none", accept="image/*") }} {% for error in form.file.errors %}
-        <span class="text-danger">{{ error }}</span>
-        {% endfor %}
-      </div>
-
-      <div id="file-name-display" class="alert alert-primary d-none" role="alert">Selected file: <strong></strong></div>
-
-      {{ form.submit(class="btn btn-primary w-100", id="convert-submit-btn") }}
-    </form>
-
-    <p class="mt-3 text-muted text-center">We use the **Pillow** library for fast and secure in-memory conversion. Files are not stored on the server.</p>
-    <p class="mt-1 text-muted text-center small">Max file size: 10MB.</p>
+    </div>
   </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const dropArea = document.getElementById("drop-area");
@@ -69,26 +69,18 @@
     function updateFileName(file) {
       if (file) {
         fileNameStrong.textContent = file.name;
-        fileNameDisplay.classList.remove("d-none");
+        fileNameDisplay.classList.remove("hidden");
       } else {
         fileNameStrong.textContent = "";
-        fileNameDisplay.classList.add("d-none");
+        fileNameDisplay.classList.add("hidden");
       }
     }
 
-    dropArea.addEventListener("click", () => {
-      fileInput.click();
-    });
+    dropArea.addEventListener("click", () => fileInput.click());
 
-    fileInput.addEventListener("change", (e) => {
-      if (fileInput.files.length > 0) {
-        updateFileName(fileInput.files[0]);
-      } else {
-        updateFileName(null);
-      }
+    fileInput.addEventListener("change", () => {
+      updateFileName(fileInput.files.length > 0 ? fileInput.files[0] : null);
     });
-
-    // Drag & Drop handling
 
     ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
       dropArea.addEventListener(eventName, preventDefaults, false);
@@ -101,39 +93,27 @@
     }
 
     ["dragenter", "dragover"].forEach((eventName) => {
-      dropArea.addEventListener(
-        eventName,
-        () => {
-          dropArea.classList.add("drag-over");
-        },
-        false
-      );
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add("border-primary", "bg-primary/10");
+      });
     });
 
     ["dragleave", "drop"].forEach((eventName) => {
-      dropArea.addEventListener(
-        eventName,
-        () => {
-          dropArea.classList.remove("drag-over");
-        },
-        false
-      );
+      dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove("border-primary", "bg-primary/10");
+      });
     });
 
-    dropArea.addEventListener("drop", handleDrop, false);
-
-    function handleDrop(e) {
+    dropArea.addEventListener("drop", (e) => {
       const dt = e.dataTransfer;
       const files = dt.files;
-
       if (files.length > 0) {
         const fileList = new DataTransfer();
         fileList.items.add(files[0]);
         fileInput.files = fileList.files;
-
         updateFileName(files[0]);
       }
-    }
+    });
   });
 </script>
 {% endblock %}

@@ -1,41 +1,45 @@
-{% extends "base.html" %} {% block title %}Login - OmniTool{% endblock %} {%
-block content %}
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card p-4 shadow-sm">
-        <h1 class="mb-4 text-center">Login</h1>
-        <form method="POST" action="{{ url_for('login') }}">
-          {{ form.hidden_tag() }} {# CSRF token #}
-          <div class="mb-3">
-            {{ form.email.label(class="form-label") }} {{
-            form.email(class="form-control") }} {% if form.email.errors %}
-            <div class="text-danger">
-              {% for error in form.email.errors %}{{ error }}{% endfor %}
-            </div>
+{% extends "base.html" %}
+{% block title %}Login - OmniTool{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center py-8">
+  <div class="w-full max-w-md animate-fade-in-up">
+    <div class="card bg-base-200 shadow-2xl border border-base-300">
+      <div class="card-body">
+        <div class="flex flex-col items-center mb-2">
+          <img src="{{ url_for('static', filename='img/OmniTool_logo.png') }}" alt="OmniTool" class="w-16 h-16 object-contain mb-3 animate-float" />
+          <h1 class="text-2xl sm:text-3xl font-bold">Welcome back</h1>
+          <p class="text-sm opacity-70">Login to your OmniTool account</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4 mt-2">
+          {{ form.hidden_tag() }}
+
+          <div>
+            <label class="label" for="email"><span class="label-text">{{ form.email.label.text }}</span></label>
+            {{ form.email(class="input input-bordered w-full", id="email", placeholder="you@example.com") }}
+            {% if form.email.errors %}
+              <div class="text-error text-xs mt-1">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>
             {% endif %}
           </div>
-          <div class="mb-3">
-            {{ form.password.label(class="form-label") }} {{
-            form.password(class="form-control") }} {% if form.password.errors %}
-            <div class="text-danger">
-              {% for error in form.password.errors %}{{ error }}{% endfor %}
-            </div>
+
+          <div>
+            <label class="label" for="password"><span class="label-text">{{ form.password.label.text }}</span></label>
+            {{ form.password(class="input input-bordered w-full", id="password", placeholder="••••••••") }}
+            {% if form.password.errors %}
+              <div class="text-error text-xs mt-1">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>
             {% endif %}
           </div>
-          <div class="mb-3 form-check">
-            {{ form.remember(class="form-check-input") }} {{
-            form.remember.label(class="form-check-label") }}
-          </div>
-          <div class="d-grid gap-2">
-            {{ form.submit(class="btn btn-primary") }}
-          </div>
+
+          <label class="label cursor-pointer justify-start gap-2">
+            {{ form.remember(class="checkbox checkbox-primary checkbox-sm") }}
+            <span class="label-text">{{ form.remember.label.text }}</span>
+          </label>
+
+          {{ form.submit(class="btn btn-primary w-full") }}
         </form>
-        <div class="text-center mt-3">
-          <small
-            >Need an account?
-            <a href="{{ url_for('register') }}">Sign Up</a></small
-          >
+
+        <div class="text-center mt-4 text-sm opacity-80">
+          Need an account? <a href="{{ url_for('auth.register') }}" class="link link-primary">Sign Up</a>
         </div>
       </div>
     </div>

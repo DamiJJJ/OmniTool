@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Merge PDFs{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+  <div class="text-sm breadcrumbs mb-2">
+    <ul>
+      <li><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
+      <li><a href="{{ url_for('conversion.document_conversion') }}">Document & PDF Tools</a></li>
+      <li class="opacity-70">Merge PDFs</li>
+    </ul>
+  </div>
+
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">
+    <i class="fas fa-object-group text-primary mr-2"></i> Merge PDFs
+  </h1>
+
+  <div class="card bg-base-200 shadow-xl border border-base-300">
+    <div class="card-body">
+      <form id="merge-form" method="POST" action="{{ url_for('conversion.merge_pdf') }}" enctype="multipart/form-data" class="space-y-4">
+        {{ form.csrf_token }}
+
+        <div
+          id="drop-area"
+          class="border-2 border-dashed border-base-300 rounded-2xl p-8 sm:p-10 text-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5"
+        >
+          <i class="fas fa-cloud-upload-alt text-5xl mb-3 opacity-60"></i>
+          <p class="opacity-70">Drag & drop your PDF files here, or <span class="text-primary font-medium">click to select</span>.</p>
+          <p class="text-xs opacity-60 mt-1">Select 2 to {{ max_files }} PDF files. Files are merged in the order shown below.</p>
+          <input type="file" id="files" name="files" accept="application/pdf" multiple class="hidden" />
+        </div>
+
+        <ul id="file-list" class="menu bg-base-100 rounded-box border border-base-300 hidden"></ul>
+
+        {{ form.submit(class="btn btn-primary w-full gap-2") }}
+      </form>
+
+      <div class="text-center text-sm opacity-70 mt-4 space-y-1">
+        <p>We use <strong>pypdf</strong> for in-memory PDF merging. Files are not stored on the server.</p>
+        <p class="text-xs">Max file size: 10MB each · Max combined pages: 500.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("files");
+    const fileList = document.getElementById("file-list");
+
+    function renderList() {
+      fileList.innerHTML = "";
+      if (!fileInput.files || fileInput.files.length === 0) {
+        fileList.classList.add("hidden");
+        return;
+      }
+      fileList.classList.remove("hidden");
+      Array.from(fileInput.files).forEach((file, idx) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="flex justify-between items-center w-full">
+            <span class="truncate"><i class="fas fa-file-pdf text-error mr-2"></i>${idx + 1}. ${file.name}</span>
+            <span class="text-xs opacity-60">${(file.size / 1024).toFixed(1)} KB</span>
+          </span>`;
+        fileList.appendChild(li);
+      });
+    }
+
+    dropArea.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", renderList);
+
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
+      document.body.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
+    });
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.add("border-primary", "bg-primary/10"));
+    });
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.remove("border-primary", "bg-primary/10"));
+    });
+
+    dropArea.addEventListener("drop", (e) => {
+      const dt = e.dataTransfer;
+      if (!dt || !dt.files || dt.files.length === 0) return;
+      const dataTransfer = new DataTransfer();
+      Array.from(dt.files).forEach((f) => dataTransfer.items.add(f));
+      fileInput.files = dataTransfer.files;
+      renderList();
+    });
+  });
+</script>
+{% endblock %}

@@ -1,17 +1,45 @@
-{% extends "base.html" %} {% block title %}Account - OmniTool{% endblock %} {%
-block content %}
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h1 class="mb-4 text-center">Account Information</h1>
-    {% if current_user.is_authenticated %}
-    <p><strong>Username:</strong> {{ current_user.username }}</p>
-    <p><strong>Email:</strong> {{ current_user.email }}</p>
-    {# Tutaj możesz dodać inne informacje o użytkowniku lub opcje #}
-    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-    {% else %}
-    <p>You are not logged in.</p>
-    <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
-    {% endif %}
+{% extends "base.html" %}
+{% block title %}Account - OmniTool{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-6 animate-fade-in-up">
+  <div class="card bg-base-200 shadow-xl border border-base-300">
+    <div class="card-body">
+      <h1 class="text-2xl sm:text-3xl font-bold text-center mb-6">Account Information</h1>
+
+      {% if current_user.is_authenticated %}
+      <div class="flex flex-col items-center gap-3 mb-6">
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content rounded-full w-20 h-20 grid place-items-center">
+            <span class="text-3xl font-bold">{{ current_user.username[0]|upper }}</span>
+          </div>
+        </div>
+        <h2 class="text-xl font-semibold">{{ current_user.username }}</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div class="stat bg-base-100 rounded-box border border-base-300">
+          <div class="stat-title">Username</div>
+          <div class="stat-value text-lg break-all">{{ current_user.username }}</div>
+        </div>
+        <div class="stat bg-base-100 rounded-box border border-base-300">
+          <div class="stat-title">Email</div>
+          <div class="stat-value text-lg break-all">{{ current_user.email }}</div>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.logout') }}" class="text-center">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit" class="btn btn-error gap-2">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </form>
+      {% else %}
+      <p class="text-center mb-4">You are not logged in.</p>
+      <div class="text-center">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}

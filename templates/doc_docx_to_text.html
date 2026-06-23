@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}DOCX → TXT{% endblock %}
+{% block content %}
+  {% set title = "DOCX → TXT" %}
+  {% set icon_class = "fa-file-word" %}
+  {% set color_class = "text-success" %}
+  {% set breadcrumb_label = "DOCX → TXT" %}
+  {% set action_url = url_for('conversion.docx_to_text') %}
+  {% set accept = ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" %}
+  {% set help_text = "We use <strong>python-docx</strong> to read Word documents in-memory. Files are not stored on the server." %}
+  {% include "_doc_single_file_form.html" %}
+{% endblock %}

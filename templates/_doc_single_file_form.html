@@ -1,0 +1,92 @@
+{#
+  Reusable single-file upload card.
+  Required vars:
+    title (str), icon_class (str), color_class (str),
+    breadcrumb_label (str), action_url (str), accept (str), help_text (str),
+    form (FlaskForm with .csrf_token, .file, .submit)
+#}
+<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+  <div class="text-sm breadcrumbs mb-2">
+    <ul>
+      <li><a href="{{ url_for('conversion.conversion_index') }}">Conversion Center</a></li>
+      <li><a href="{{ url_for('conversion.document_conversion') }}">Document & PDF Tools</a></li>
+      <li class="opacity-70">{{ breadcrumb_label }}</li>
+    </ul>
+  </div>
+
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">
+    <i class="fas {{ icon_class }} {{ color_class }} mr-2"></i> {{ title }}
+  </h1>
+
+  <div class="card bg-base-200 shadow-xl border border-base-300">
+    <div class="card-body">
+      <form method="POST" action="{{ action_url }}" enctype="multipart/form-data" class="space-y-4">
+        {{ form.csrf_token }}
+
+        <div
+          id="drop-area"
+          class="border-2 border-dashed border-base-300 rounded-2xl p-8 sm:p-10 text-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5"
+        >
+          <i class="fas fa-cloud-upload-alt text-5xl mb-3 opacity-60"></i>
+          <p class="opacity-70">Drag & drop your file here, or <span class="text-primary font-medium">click to select</span>.</p>
+          {{ form.file(class="hidden", accept=accept) }}
+          {% for error in form.file.errors %}<span class="text-error text-xs">{{ error }}</span>{% endfor %}
+        </div>
+
+        <div id="file-name-display" class="alert alert-info hidden">
+          <i class="fas fa-file"></i>
+          <span>Selected file: <strong></strong></span>
+        </div>
+
+        {{ form.submit(class="btn btn-primary w-full gap-2") }}
+      </form>
+
+      <div class="text-center text-sm opacity-70 mt-4 space-y-1">
+        <p>{{ help_text|safe }}</p>
+        <p class="text-xs">Max file size: 10MB.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("file");
+    const fileNameDisplay = document.getElementById("file-name-display");
+    const fileNameStrong = fileNameDisplay.querySelector("strong");
+
+    function updateFileName(file) {
+      if (file) {
+        fileNameStrong.textContent = file.name;
+        fileNameDisplay.classList.remove("hidden");
+      } else {
+        fileNameStrong.textContent = "";
+        fileNameDisplay.classList.add("hidden");
+      }
+    }
+
+    dropArea.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => updateFileName(fileInput.files[0] || null));
+
+    ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
+      document.body.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); });
+    });
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.add("border-primary", "bg-primary/10"));
+    });
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.remove("border-primary", "bg-primary/10"));
+    });
+
+    dropArea.addEventListener("drop", (e) => {
+      const dt = e.dataTransfer;
+      if (!dt || !dt.files || dt.files.length === 0) return;
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(dt.files[0]);
+      fileInput.files = dataTransfer.files;
+      updateFileName(dt.files[0]);
+    });
+  });
+</script>

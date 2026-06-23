@@ -1,90 +1,124 @@
-{% extends "base.html" %} {% block title %}To-Do List - OmniTool{% endblock %} {% block content %}
-<div class="container mt-4">
-  <h1 class="mb-4 text-center">To-Do List</h1>
+{% extends "base.html" %}
+{% block title %}To-Do List - OmniTool{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-4 animate-fade-in-up">
+  <h1 class="text-3xl sm:text-4xl font-bold text-center mb-6">
+    <i class="fas fa-tasks text-error mr-2"></i> To-Do List
+  </h1>
 
-  <div class="card p-4 shadow-sm mb-4">
-    <form method="POST" action="{{ url_for('todo.todo_list') }}" class="mb-4">
-      {{ form.csrf_token }}
-      <div class="mb-3">
-        <label for="description" class="form-label">Task Description</label>
-        {{ form.description(class="form-control", placeholder="Add a new task...", required=True) }}
-      </div>
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label for="deadline" class="form-label">Deadline</label>
-          {{ form.deadline(class="form-control") }}
-        </div>
-        <div class="col-md-6">
-          <label for="priority" class="form-label">Priority</label>
-          {{ form.priority(class="form-select") }}
-        </div>
-      </div>
-      <button class="btn btn-primary w-100" type="submit">Add Task</button>
-      {% if form.description.errors %}
-      <div class="alert alert-danger mt-2">
-        {% for error in form.description.errors %}
-        <span>{{ error }}</span>
-        {% endfor %}
-      </div>
-      {% endif %}
-    </form>
-
-    {% if todos %}
-    <ul class="list-group">
-      {% for task in todos %}
-      <li
-        class="list-group-item d-flex justify-content-between align-items-center {% if task.completed %}list-group-item-success{% endif %}"
-        data-task-id="{{ task.id }}"
-      >
-        <div class="d-flex align-items-center">
-          <form class="complete-form me-3">
-            <input class="form-check-input" type="checkbox" name="completed_task" {% if task.completed %} checked {% endif %} />
-          </form>
-          <span class="task-description {% if task.completed %}text-decoration-line-through text-muted{% endif %}">{{ task.description }}</span>
-          {% if task.priority %} {% if task.priority == 1 %}
-          <span class="badge bg-danger ms-2">High Priority</span>
-          {% elif task.priority == 2 %}
-          <span class="badge bg-warning text-dark ms-2">Medium Priority</span>
-          {% else %}
-          <span class="badge bg-success ms-2">Low Priority</span>
-          {% endif %} {% endif %} {% if task.deadline %}
-          <small class="text-muted ms-2"> Deadline: {{ task.deadline.strftime('%Y-%m-%d') }} </small>
+  <div class="card bg-base-200 shadow-xl border border-base-300 mb-6">
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('todo.todo_list') }}" class="space-y-4">
+        {{ form.csrf_token }}
+        <div>
+          <label for="description" class="label"><span class="label-text font-medium">Task Description</span></label>
+          {{ form.description(class="input input-bordered w-full", placeholder="Add a new task...", required=True) }}
+          {% if form.description.errors %}
+            <div class="alert alert-error mt-2">
+              {% for error in form.description.errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
           {% endif %}
         </div>
-        <div class="d-flex gap-2">
-          <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" title="Edit Task">
-            <i class="fas fa-edit"></i>
-          </a>
-          <a href="{{ url_for('todo.delete_todo', task_id=task.id) }}" class="btn btn-sm btn-danger" title="Delete Task">
-            <i class="fas fa-trash-alt"></i>
-          </a>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="deadline" class="label"><span class="label-text font-medium">Deadline</span></label>
+            {{ form.deadline(class="input input-bordered w-full") }}
+          </div>
+          <div>
+            <label for="priority" class="label"><span class="label-text font-medium">Priority</span></label>
+            {{ form.priority(class="select select-bordered w-full") }}
+          </div>
         </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="text-center">No tasks found. Add a new task above!</p>
-    {% endif %}
+        <button type="submit" class="btn btn-primary w-full gap-2">
+          <i class="fas fa-plus"></i> Add Task
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-xl border border-base-300">
+    <div class="card-body">
+      {% if todos %}
+      <ul class="space-y-2">
+        {% for task in todos %}
+        <li
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl border border-base-300 bg-base-100 transition-all hover:shadow-md {% if task.completed %}bg-success/10 border-success/30{% endif %}"
+          data-task-id="{{ task.id }}"
+        >
+          <div class="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+            <form class="complete-form" method="POST" action="{{ url_for('todo.complete_todo', task_id=task.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <input class="checkbox checkbox-success" type="checkbox" name="completed_task" {% if task.completed %}checked{% endif %} />
+            </form>
+            <div class="flex-1 min-w-0">
+              <span class="task-description block break-words {% if task.completed %}line-through opacity-60{% endif %}">{{ task.description }}</span>
+              <div class="flex flex-wrap items-center gap-2 mt-1">
+                {% if task.priority %}
+                  {% if task.priority == 1 %}
+                    <span class="badge badge-error badge-sm">High Priority</span>
+                  {% elif task.priority == 2 %}
+                    <span class="badge badge-warning badge-sm">Medium Priority</span>
+                  {% else %}
+                    <span class="badge badge-success badge-sm">Low Priority</span>
+                  {% endif %}
+                {% endif %}
+                {% if task.deadline %}
+                  <span class="text-xs opacity-70">
+                    <i class="fas fa-calendar-day mr-1"></i>{{ task.deadline.strftime('%Y-%m-%d') }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2 self-end sm:self-auto">
+            <a href="{{ url_for('todo.edit_todo', task_id=task.id) }}" class="btn btn-sm btn-info" title="Edit Task">
+              <i class="fas fa-edit"></i>
+            </a>
+            <form method="POST" action="{{ url_for('todo.delete_todo', task_id=task.id) }}" onsubmit="return confirm('Delete this task?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit" class="btn btn-sm btn-error" title="Delete Task">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="text-center py-8 opacity-70">
+        <i class="fas fa-clipboard-list text-5xl mb-3 opacity-50"></i>
+        <p>No tasks found. Add a new task above!</p>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const completeForms = document.querySelectorAll(".complete-form");
     completeForms.forEach((form) => {
-      const checkbox = form.querySelector(".form-check-input");
+      const checkbox = form.querySelector('input[type="checkbox"]');
       checkbox.addEventListener("change", (e) => {
-        const listItem = form.closest(".list-group-item");
-        const taskId = listItem.dataset.taskId;
+        const listItem = form.closest("li");
         const isChecked = e.target.checked;
         const taskDescription = listItem.querySelector(".task-description");
 
         checkbox.disabled = true;
-
-        fetch(`/todo/complete/${taskId}`)
+        const formData = new FormData(form);
+        fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        })
           .then((response) => {
-            listItem.classList.toggle("list-group-item-success", isChecked);
-            taskDescription.classList.toggle("text-decoration-line-through", isChecked);
-            taskDescription.classList.toggle("text-muted", isChecked);
+            if (!response.ok) throw new Error("Server error");
+            listItem.classList.toggle("bg-success/10", isChecked);
+            listItem.classList.toggle("border-success/30", isChecked);
+            taskDescription.classList.toggle("line-through", isChecked);
+            taskDescription.classList.toggle("opacity-60", isChecked);
           })
           .catch((error) => {
             console.error("Error completing task:", error);

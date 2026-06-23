@@ -52,5 +52,8 @@ dist/
 build/
 *.egg-info/
 
-# Migrations (optional - uncomment if you want to exclude)
-migrations/
+# Migrations - MUSZA byc w repo: obraz Dockera uruchamia `flask db upgrade`,
+# zeby utworzyc/zaktualizowac schemat w MySQL. (Wczesniej katalog byl ignorowany.)
+# migrations/
+migrations/__pycache__/
+migrations/**/__pycache__/

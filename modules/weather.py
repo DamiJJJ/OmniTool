@@ -16,9 +16,9 @@ if not OPENWEATHER_API_KEY:
 
 
 def get_city_name_from_coords(lat, lon):
-    geo_url = f"http://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={OPENWEATHER_API_KEY}"
+    geo_url = f"https://api.openweathermap.org/geo/1.0/reverse?lat={lat}&lon={lon}&limit=1&appid={OPENWEATHER_API_KEY}"
     try:
-        response = requests.get(geo_url)
+        response = requests.get(geo_url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
         if data and len(data) > 0:
@@ -30,10 +30,10 @@ def get_city_name_from_coords(lat, lon):
 
 
 def get_weather_data(city):
-    forecast_url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=en"
+    forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={OPENWEATHER_API_KEY}&units=metric&lang=en"
 
     try:
-        response = requests.get(forecast_url)
+        response = requests.get(forecast_url, timeout=(5, 10))
         response.raise_for_status()
         data = response.json()
 
