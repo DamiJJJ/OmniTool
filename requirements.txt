@@ -10,7 +10,10 @@ Flask-SQLAlchemy==3.1.1
 alembic==1.13.2
 Flask-Migrate==4.0.5
 
-# PostgreSQL driver (production only - not needed in dev)
+# MySQL / MariaDB driver - czysty Python, bez kompilacji
+PyMySQL==1.1.1
+
+# PostgreSQL driver (opcjonalny - zostawiony na wypadek deployu na Postgresie)
 psycopg==3.2.3
 
 # Authentication

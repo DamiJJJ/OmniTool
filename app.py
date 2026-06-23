@@ -9,6 +9,7 @@ from flask import (
     session,
     jsonify,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import config
 from extensions import db, migrate, login_manager, csrf, limiter
@@ -24,6 +25,9 @@ def create_app(config_name=None):
     config_class = config.get(config_name, config["default"])
     app.config.from_object(config_class)
     config_class.init_app(app)
+
+    if app.config.get("USE_PROXY_FIX"):
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
     logging.basicConfig(
         level=logging.DEBUG if app.config.get("DEBUG") else logging.INFO,
